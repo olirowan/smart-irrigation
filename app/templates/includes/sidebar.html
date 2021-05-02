@@ -1,7 +1,8 @@
 <nav id="sidebarMenu" class="sidebar d-md-block bg-primary text-white collapse px-4">
 
     <div class="sidebar-sticky pt-3 mx-auto">
-        <div class="user-card d-flex d-md-none align-items-center justify-content-between justify-content-md-center pb-4">
+        <div
+            class="user-card d-flex d-md-none align-items-center justify-content-between justify-content-md-center pb-4">
             <div class="d-flex align-items-center">
                 <div class="user-avatar lg-avatar mr-4">
                     <img src="{{ url_for('static', filename='uploads/'+current_user.profileimage) }}"
@@ -19,6 +20,16 @@
             </div>
         </div>
 
+        <div class="row d-flex">
+            <div class="col-4 px-0">
+                <img src="/static/assets/img/plantlogo.svg" alt="Smart Irrigation">    
+            </div>
+            <div class="col-8 px-0 align-self-center">
+                <h4 class="nav-title-text">Smart Irrigation</h4>
+            </div>
+        </div>
+
+
         <ul class="nav flex-column">
 
             <li role="separator" class="dropdown-divider mt-4 mb-3 border-black"></li>
@@ -29,19 +40,20 @@
                     <span>Dashboard</span>
                 </a>
             </li>
-            <li class="nav-item  {% if 'transactions' in segment %} active {% endif %}">
+
+            <!-- <li class="nav-item  {% if 'transactions' in segment %} active {% endif %}">
                 <a href="/transactions.html" class="nav-link">
                     <span class="sidebar-icon"><span class="fas fa-cloud-rain"></span></span>
                     <span>History</span>
                 </a>
-            </li>
+            </li> -->
 
-            <li class="nav-item  {% if 'settings' in segment %} active {% endif %}">
+            <!-- <li class="nav-item  {% if 'settings' in segment %} active {% endif %}">
                 <a href="{{ url_for('home_blueprint.profile') }}" class="nav-link">
                     <span class="sidebar-icon"><span class="fas fa-user"></span></span>
                     <span>Profile</span>
                 </a>
-            </li>
+            </li> -->
 
             <li class="nav-item  {% if 'settings' in segment %} active {% endif %}">
                 <a href="{{ url_for('home_blueprint.settings') }}" class="nav-link">
@@ -81,4 +93,43 @@
             </li>
         </ul>
     </div>
+
+    <footer class="fixed-bottom px-4 py-2 mx-auto">
+        <h6 class="font-weight-normal text-muted"><span id="socketStatusIcon"
+                class="icon w-20 icon-xs icon-danger mr-1"><span class="fas fa-plug"></span></span>
+            <span id="socketStatusText">Socket: Disconnected</span>
+        </h6>
+    </footer>
+
+    <script>
+        $(document).ready(function () {
+
+            namespace = '/test';
+            var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+            socket.on('connect', function () {
+                socket.emit('connection', { connection_confirmation: 'Socket: Connected' });
+
+            });
+
+            socket.on('confirmation', function (data) {
+                var confir_str = data.connection_confirmation;
+                connection_status = '<span class="icon w-20 icon-xs icon-success mr-1"><span class="fas fa-plug"></span></span>' + confir_str
+                document.getElementById("socketStatusIcon").classList.remove('icon-danger');
+                document.getElementById("socketStatusIcon").classList.add('icon-success');
+                document.getElementById("socketStatusText").innerHTML = confir_str
+            });
+
+            socket.on('short_response', function (reponse) {
+
+                display_water_progress();
+            });
+
+            $(function () {
+                $('#start-bg-job').click(emit_water_plants);
+            });
+        });
+    </script>
+
+
 </nav>
