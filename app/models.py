@@ -21,6 +21,10 @@ class User(db.Model, UserMixin):
     longitude = Column(String)
     owm_apikey = Column(String)
     profileimage = Column(String, default="profile_template.png")
+    water_duration_minutes = Column(String, default="60")
+    schedule_watering = Column(String, default="eod")
+    skip_rained_today = Column(String, default="1")
+    skip_rained_yesterday = Column(String, default="1")
 
     def __init__(self, **kwargs):
         for property, value in kwargs.items():

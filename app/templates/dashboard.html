@@ -14,71 +14,51 @@
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
     </div>
 
-    <button class="btn btn-primary mb-4" id="start-bg-job">Start Watering</button>
-    <div id="progress" class="mb-4"></div>
-
     <div class="row justify-content-md-center">
-        <div class="col-12 col-sm-6 col-xl-4 mb-4">
-            <div class="card border-light shadow-sm">
-                <div class="card-body">
-                    <div class="row d-block d-xl-flex align-items-center">
-                        <div
-                            class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+        <div class="col-12 col-xl-10 py-2">
+            <div class="card h-100 card-body bg-white border-dark shadow-sm">
+                <div class="row d-block d-xl-flex align-items-center">
+                    <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                        <button class="btn btn-primary mb-4" id="start-bg-job">Start Watering</button>
+                    </div>
+                </div>
+                <div class="row ">
+                    <div class="col-12 text-xl-center mb-3 mb-xl-0">
+                        <div id="progress" class="mb-4"></div>
+                    </div>
+                </div>
+                <div class="row d-block d-xl-flex align-items-center">
+                    <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
 
-                            <div class="icon icon-shape icon-md icon-shape-blue rounded mr-4 mr-sm-0"><span><i
-                                        class="{{ weather_icon }}"></i></span></div>
-
-                            <div class="d-sm-none">
-                                <h2 class="h5">Weather</h2>
-                                <h3 class="mb-1">{{ weather.detailed_status|title }}</h3>
-                            </div>
-
+                        <div class="icon icon-shape icon-md icon-shape-blue rounded mr-4 mr-sm-0">
+                            <span>
+                                <i class="{{ weather_icon }}"></i>
+                            </span>
                         </div>
-                        <div class="col-12 col-xl-7 px-xl-0">
-                            <div class="d-none d-sm-block">
-                                <h2 class="h5">Weather</h2>
-                                <h3 class="mb-1">{{ weather.detailed_status|title }}</h3>
-                            </div>
-                            <small>{{ current_date.strftime('%a %d %b %H:%M') }}</small>
-                            <div class="small mt-2">
-                                <span class="icon icon-small">
-                                    <span class="fas fa-globe-europe"></span>
-                                </span> {{ current_user.city }}
-                            </div>
+  
+                    </div>
+                    <div class="col-12 col-xl-7 px-xl-0">
+                        <div class="d-none d-sm-block">
+                            <h3 class="h2 text-white">Weather</h3>
+                            <h1 class="mb-1 text-white">{{ weather.detailed_status|title }}</h1>
+                        </div>
+                        <h4>
+                            <small class="text-white">
+                                {{ current_date.strftime('%a %d %b %H:%M') }}
+                            </small>
+                        </h4>
+                        <div class="small mt-2 text-white">
+                            <h4>
+                            <span class="icon icon-small text-white">
+                                <span class="fas fa-globe-europe text-white"></span>
+                            </span>
+                            {{ current_user.city }}
+
+                            </h4>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-4 mb-4">
-
-        </div>
-        <div class="col-12 col-sm-6 col-xl-4 mb-4">
-            <!-- <div class="card border-light shadow-sm">
-                <div class="card-body">
-                    <div class="row d-block d-xl-flex align-items-center">
-                        <div
-                            class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
-                            <div class="icon icon-shape icon-md icon-shape-secondary rounded mr-4"><span
-                                class="fas fa-seedling icon-success"></span></div>
-                        </div>
-                        <div class="col-12 col-xl-7 px-xl-0">
-                            <h2 class="h5 mb-3">Irregation System</h2>
-                            <h6 class="font-weight-normal text-gray"><span id="socketStatusIcon"
-                                    class="icon w-20 icon-xs icon-danger mr-1"><span class="fas fa-plug"></span></span>
-                                <span id="socketStatusText">Socket: Disconnected</span>
-                            </h6>
-                            <h6 class="font-weight-normal text-gray"><span
-                                    class="icon w-20 icon-xs icon-info mr-1"><span id="waterStatusIcon" class="fas fa-tint-slash"></span></span>
-                                <span id="waterStatusText">System: Idle</span>
-                            </h6>
-                            <h6 class="font-weight-normal text-gray"><span
-                                    class="icon w-20 icon-xs icon-primary mr-1"><span
-                                        class="fas fa-mobile-alt"></span></span> Watering </h6>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
         </div>
     </div>
 

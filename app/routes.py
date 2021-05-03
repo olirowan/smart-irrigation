@@ -223,6 +223,9 @@ def settings():
         latitude_value = request.form.get("latitude")
         longitude_value = request.form.get("longitude")
 
+        app.logger.info(request.form.get("skip_rained_today"))
+        app.logger.info(request.form.get("skip_rained_yesterday"))
+
         if latitude_value is not None and longitude_value is not None and (latitude_value != current_user.latitude or longitude_value != current_user.longitude):
 
             app.logger.info("making nominatim request")
@@ -237,6 +240,11 @@ def settings():
         current_user.timezone = request.form.get("timezone")
         current_user.latitude = latitude_value
         current_user.longitude = longitude_value
+
+        current_user.water_duration_minutes = request.form.get("water_duration_minutes")
+        current_user.schedule_watering = request.form.get("schedule_watering")
+        current_user.skip_rained_today = request.form.get("skip_rained_today")
+        current_user.skip_rained_yesterday = request.form.get("skip_rained_yesterday")
 
         db.session.commit()
 
