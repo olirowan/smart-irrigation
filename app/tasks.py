@@ -65,13 +65,13 @@ def long_task(self):
 @celery.task(
     bind=True,
     base=celery.QueueOnce,
-    once={'timeout': 25}
+    once={'timeout': 8}
 )
 def short_task(self):
 
     socketio = SocketIO(message_queue=app.config['CELERY_BROKER_URL'])
 
-    total = 25
+    total = 8
     for i in range(0, total, 1):
         if i < total:
             message = "Watering in progress..."

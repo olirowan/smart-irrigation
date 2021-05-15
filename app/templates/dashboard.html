@@ -11,7 +11,7 @@
     {% include 'includes/navigation.html' %}
 
     <div class="col-12 text-xl-center mb-4 py-4 mb-xl-0">
-        <div id="progress"></div>
+        <!-- <div id="progress"></div> -->
     </div>
 
     <div class="main-container">
@@ -38,7 +38,7 @@
                                 <div class="col-12 col-xl-12 px-xl-0">
                                     <div class="d-none d-sm-block"></div>
                                     <h1 class="mb-1 text-white">{{ weather.detailed_status|title }}</h1>
-                                    <li role="separator" class="dropdown-divider mb-4 mr-4 border-gold"></li>
+                                    <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
                                 </div>
 
                                 <div class="col-12 col-xl-12 px-xl-0">
@@ -70,6 +70,7 @@
                                                 <a class="dropdown-item" href="#">Stop Watering</a>
                                             </div>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -78,13 +79,21 @@
                                 <!-- <h1>Spacer</h1> -->
                             </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col-12 text-xl-center mb-4 py-4 mb-xl-0">
+                                <span id="progress"></span>
+                                <span id="progressbar"></span>
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-12 col-xl-3">
                                 <div class="d-flex align-items-end flex-column mt-auto">
                                     <div class="col-12 col-xl-12 px-xl-0">
                                         <div class="d-none d-sm-block"></div>
                                         <h5 class="mb-1 text-white">Last Rained</h5>
-                                        <li role="separator" class="dropdown-divider mb-4 mr-4 border-gold"></li>
+                                        <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
                                     </div>
 
                                     <div class="col-12 col-xl-12 px-xl-0">
@@ -100,7 +109,7 @@
                                     <div class="col-12 col-xl-12 px-xl-0">
                                         <div class="d-none d-sm-block"></div>
                                         <h5 class="mb-1 text-white">Last Watered</h5>
-                                        <li role="separator" class="dropdown-divider mb-4 mr-4 border-gold"></li>
+                                        <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
                                     </div>
 
                                     <div class="col-12 col-xl-12 px-xl-0">
@@ -116,7 +125,7 @@
                                     <div class="col-12 col-xl-12 px-xl-0">
                                         <div class="d-none d-sm-block"></div>
                                         <h5 class="mb-1 text-white">Next Rain</h5>
-                                        <li role="separator" class="dropdown-divider mb-4 mr-4 border-gold"></li>
+                                        <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
                                     </div>
 
                                     <div class="col-12 col-xl-12 px-xl-0">
@@ -132,7 +141,7 @@
                                     <div class="col-12 col-xl-12 px-xl-0">
                                         <div class="d-none d-sm-block"></div>
                                         <h5 class="mb-1 text-white">Next Water</h5>
-                                        <li role="separator" class="dropdown-divider mb-4 mr-4 border-gold"></li>
+                                        <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
                                     </div>
 
                                     <div class="col-12 col-xl-12 px-xl-0">
@@ -148,8 +157,37 @@
             </div>
 
             <script src="/static/assets/js/jquery.min.js"></script>
+            <script src="/static/assets/js/progressbar.min.js"></script>
             <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
             <script>
+
+                var bar = new ProgressBar.Line('#progressbar', {
+                    strokeWidth: 0.2,
+                    easing: 'easeInOut',
+                    duration: 1400,
+                    color: '#e9b25d',
+                    trailColor: '#eee',
+                    trailWidth: 1,
+                    text: {
+                        style: {
+                            // Text color.
+                            // Default: same as stroke color (options.color)
+                            color: '#999',
+                            position: 'absolute',
+                            right: '0',
+                            top: '30px',
+                            padding: 0,
+                            margin: 0,
+                            transform: null
+                        },
+                        autoStyleContainer: false
+                    },
+                    from: { color: '#e9b25d' },
+                    to: { color: '#e9b25d' },
+                    step: (state, bar) => {
+                        bar.setText(Math.round(bar.value() * 100) + ' %');
+                    }
+                });
 
                 function emit_water_plants() {
 
@@ -182,15 +220,16 @@
                     socket.on('short_response', function (reponse) {
 
                         var myJSON = JSON.parse(JSON.stringify(reponse));
-                        update_line_progress(myJSON, div[0]);
+                        update_line_progress(myJSON, div[0], bar);
 
                     });
                 }
 
-                function update_line_progress(myJSON, status_div) {
+                function update_line_progress(myJSON, status_div, bar) {
 
                     percent = parseInt(myJSON['current'] * 100 / parseInt(myJSON['total']));
                     $(".progress-bar").css("width", percent + "%").text(percent + " %");
+                    bar.animate(percent / 100)
 
                     $(status_div.childNodes[1]).text("Watering: " + percent + '%');
 
@@ -199,6 +238,7 @@
                         $(status_div.childNodes[1]).text("Completed");
                         setTimeout(function () {
                             $('#progress').empty();
+                            bar.destroy();
                         }, 2500);
                         setTimeout(function () {
                             document.getElementById("start-bg-job").disabled = false;
