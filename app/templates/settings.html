@@ -14,14 +14,13 @@
     </div>
     <div class="main-container">
         <div class="row justify-content-center">
-
             <div class="col-12 col-xl-10 py-2">
                 <div class="card h-100 card-body bg-white border-dark shadow-sm text-center p-0">
-                    <div class="profile-cover rounded-top" data-background="/static/assets/img/profile-cover.jpg">
+                    <div class="profile-cover rounded-top">
                     </div>
                     <div class="card-body pb-5">
                         <img src="{{ url_for('static', filename='uploads/'+current_user.profileimage) }}"
-                            class="user-avatar large-avatar rounded-circle mx-auto mt-n7 mb-4" alt="Neil Portrait">
+                            class="user-avatar large-avatar rounded-circle mx-auto mt-n7 mb-4" alt="{{ current_user.first_name }}">
                         <h4 class="h3 text-white">
                             {{ current_user.first_name }} {{ current_user.last_name }}
                         </h4>
@@ -41,14 +40,14 @@
                                                     class="form-control form-file-input">
                                                 <label class="form-file-label custom-file-label" for="customFile">
                                                     <span
-                                                        class="form-file-button rounded-0 rounded-left btn-primary">Browse</span>
+                                                        class="form-file-button rounded-0 rounded-left btn-light">Browse</span>
                                                     <span class="rounded-0 rounded-right text-truncate form-file-text"
                                                         id="span-filename">Upload Profile Image...</span>
                                                 </label>
                                             </div>
                                         </div>
                                         <div class="col-3 mb-4 ml-0 pl-0">
-                                            <button class="btn btn-secondary" id="ProfilePictureSubmit"
+                                            <button class="btn btn-light" id="ProfilePictureSubmit"
                                                 type="submit">Update</button>
                                         </div>
                                     </div>
@@ -180,69 +179,13 @@
                         </div>
 
                         <div class="mt-3">
-                            <button type="submit" class="btn btn-primary">{% block save_button %}
+                            <button type="submit" class="btn btn-light">{% block save_button %}
                                 Update{% endblock %}</button>
                         </div>
 
                     </form>
                 </div>
             </div>
-
-
-            <!-- <div class="col-12 col-xl-10 py-2">
-                <div class="card h-100 card-body bg-white border-light shadow-sm">
-                    <form>
-                        <h2 class="h5 my-4">Watering Schedule</h2>
-                        <li role="separator" class="dropdown-divider mb-4 border-grey"></li>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <div class="form-group">
-                                    <label for="address">Watering Duration in Minutes:</label>
-                                    <input class="form-control" id="water_duration_minutes" name="water_duration_minutes" type="text" {% if
-                                        current_user.water_duration_minutes %} value="{{ current_user.water_duration_minutes }}" {% endif %}
-                                        placeholder="30">
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="schedule_watering">Schedule Watering:</label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="schedule_watering" id="schedule_watering" value="ed" {% if
-                                        current_user.schedule_watering  == "ed" %} checked {% endif %}>
-                                    <label class="form-check-label" for="schedule_watering">
-                                      Every Day
-                                    </label>
-                                  </div>
-                                  <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="schedule_watering" id="schedule_watering" value="eod" {% if
-                                        current_user.schedule_watering  == "eod" %} checked {% endif %}>
-                                    <label class="form-check-label" for="schedule_watering">
-                                      Every Other Day
-                                    </label>
-                                  </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="skip_watering_when">Skip Watering When:</label>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="skip_rained_today" {% if
-                                        current_user.skip_rained_today  == "1" %} checked {% endif %}>
-                                    <label class="form-check-label" for="skip_rained_today">Rained Today</label>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="skip_rained_yesterday" {% if
-                                        current_user.skip_rained_yesterday == "1" %} checked {% endif %}>
-                                    <label class="form-check-label" for="skip_rained_yesterday">Rained Yesterday</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <button type="submit" class="btn btn-primary">
-                                Update</button>
-                        </div>
-                    </form>
-                </div>
-            </div> -->
-
-
         </div>
     </div>
     {% include 'includes/footer.html' %}

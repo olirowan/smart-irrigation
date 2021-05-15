@@ -20,15 +20,16 @@
             </div>
         </div>
 
-        <div class="row d-flex">
-            <div class="col-4 px-0">
-                <img src="/static/assets/img/plantlogo.svg" alt="Smart Irrigation">    
+        <a href="{{ url_for('home_blueprint.dashboard') }}">
+            <div class="row d-flex">
+                <div class="col-4 px-0">
+                    <img src="/static/assets/img/plantlogo.svg" alt="Smart Irrigation">    
+                </div>
+                <div class="col-8 px-0 align-self-center">
+                    <h4 class="nav-title-text">Smart Irrigation</h4>
+                </div>
             </div>
-            <div class="col-8 px-0 align-self-center">
-                <h4 class="nav-title-text">Smart Irrigation</h4>
-            </div>
-        </div>
-
+        </a>
 
         <ul class="nav flex-column">
 
@@ -40,20 +41,6 @@
                     <span>Dashboard</span>
                 </a>
             </li>
-
-            <!-- <li class="nav-item  {% if 'transactions' in segment %} active {% endif %}">
-                <a href="/transactions.html" class="nav-link">
-                    <span class="sidebar-icon"><span class="fas fa-cloud-rain"></span></span>
-                    <span>History</span>
-                </a>
-            </li> -->
-
-            <!-- <li class="nav-item  {% if 'settings' in segment %} active {% endif %}">
-                <a href="{{ url_for('home_blueprint.profile') }}" class="nav-link">
-                    <span class="sidebar-icon"><span class="fas fa-user"></span></span>
-                    <span>Profile</span>
-                </a>
-            </li> -->
 
             <li class="nav-item  {% if 'settings' in segment %} active {% endif %}">
                 <a href="{{ url_for('home_blueprint.settings') }}" class="nav-link">

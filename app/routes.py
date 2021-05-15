@@ -76,7 +76,7 @@ def dashboard():
     if current_user.city is None or current_user.country is None or current_user.timezone is None:
 
         current_weather = types.SimpleNamespace()
-        current_weather.detailed_status = "Missing API Key"
+        current_weather.detailed_status = "Location Setting Required"
         current_date = datetime.datetime.now(pytz.timezone("Europe/London"))
         weather_icon = "fas fa-ban"
 
@@ -228,10 +228,17 @@ def settings():
 
         if latitude_value is not None and longitude_value is not None and (latitude_value != current_user.latitude or longitude_value != current_user.longitude):
 
-            app.logger.info("making nominatim request")
+            app.logger.info("Making nominatim request")
             location_info = json.dumps(get_city_country(latitude_value, longitude_value))
 
-            current_user.city = json.loads(location_info)["address"]["city"]
+            # app.logger.info("Current User City: ", current_user.city)
+            # app.logger.info("location_info: ", location_info)
+
+            if "city" in json.loads(location_info)["address"]:
+                current_user.city = json.loads(location_info)["address"]["city"]
+            else:
+                current_user.city = json.loads(location_info)["address"]["state"]
+
             current_user.country = json.loads(location_info)["address"]["country"]
 
         current_user.first_name = request.form.get("first_name")
