@@ -50,9 +50,9 @@
                                         {{ current_user.city }}
                                     </h4>
                                 </div>
-                                <div class="d-flex justify-content-center ml-xl-3 py-5">
+                                <div class="d-flex justify-content-center ml-xl-3 pt-5 pb-2">
                                     <div class="d-md-block">
-                                        <div class="btn-group mr-2 mb-2 py-2">
+                                        <div class="btn-group mr-2 py-2">
                                             <button type="button" id="start-bg-job" class="btn btn-light">
                                                 Water Plants
                                             </button>
@@ -82,7 +82,6 @@
 
                         <div class="row">
                             <div class="col-12 text-xl-center mb-4 py-4 mb-xl-0">
-                                <span id="progress"></span>
                                 <span id="progressbar"></span>
                             </div>
                         </div>
@@ -161,34 +160,6 @@
             <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
             <script>
 
-                var bar = new ProgressBar.Line('#progressbar', {
-                    strokeWidth: 0.2,
-                    easing: 'easeInOut',
-                    duration: 1400,
-                    color: '#e9b25d',
-                    trailColor: '#eee',
-                    trailWidth: 1,
-                    text: {
-                        style: {
-                            // Text color.
-                            // Default: same as stroke color (options.color)
-                            color: '#999',
-                            position: 'absolute',
-                            right: '0',
-                            top: '30px',
-                            padding: 0,
-                            margin: 0,
-                            transform: null
-                        },
-                        autoStyleContainer: false
-                    },
-                    from: { color: '#e9b25d' },
-                    to: { color: '#e9b25d' },
-                    step: (state, bar) => {
-                        bar.setText(Math.round(bar.value() * 100) + ' %');
-                    }
-                });
-
                 function emit_water_plants() {
 
                     namespace = '/test';
@@ -199,19 +170,39 @@
 
                 function display_water_progress() {
 
-                    div = $('<div id="displayWaterProgress" class="progress rounded">\
-                        <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" style="min-width: 20px;"></div>\
-                    </div>');
+                    progresslock = $('<span id="progressbar-lock"></span>');
+                    var progresslockelement = document.getElementById('progressbar-lock');
 
-                    var element = document.getElementById('displayWaterProgress');
+                    if (progresslockelement == null) {
 
-                    if (element == null) {
-                        $('#progress').append(div);
+                        var bar = new ProgressBar.Line('#progressbar', {
+                        strokeWidth: 0.2,
+                        easing: 'easeInOut',
+                        duration: 1400,
+                        color: '#e9b25d',
+                        trailColor: '#eee',
+                        trailWidth: 1,
+                        text: {
+                            style: {
+                                color: '#ffffff',
+                                right: '0',
+                                top: '30px',
+                                padding: 0,
+                                margin: 0,
+                                transform: null
+                            },
+                            autoStyleContainer: false
+                        },
+                        from: { color: '#e9b25d' },
+                        to: { color: '#e9b25d' },
+                        step: (state, bar) => {
+                            bar.setText('Watering - ' + Math.round(bar.value() * 100) + ' %');
+                        }
+                    });
+
+                        $('#progressbar').append(progresslock);
 
                         document.getElementById("start-bg-job").disabled = true;
-                        document.getElementById("waterStatusIcon").classList.remove('fa-tint-slash');
-                        document.getElementById("waterStatusIcon").classList.add('fa-tint');
-                        document.getElementById("waterStatusText").innerHTML = "System: Watering"
                     }
 
                     namespace = '/test';
@@ -220,31 +211,24 @@
                     socket.on('short_response', function (reponse) {
 
                         var myJSON = JSON.parse(JSON.stringify(reponse));
-                        update_line_progress(myJSON, div[0], bar);
+                        update_line_progress(myJSON, bar);
 
                     });
                 }
 
-                function update_line_progress(myJSON, status_div, bar) {
+                function update_line_progress(myJSON, bar) {
 
                     percent = parseInt(myJSON['current'] * 100 / parseInt(myJSON['total']));
-                    $(".progress-bar").css("width", percent + "%").text(percent + " %");
                     bar.animate(percent / 100)
-
-                    $(status_div.childNodes[1]).text("Watering: " + percent + '%');
 
                     if (myJSON['status'] == 'Done') {
 
-                        $(status_div.childNodes[1]).text("Completed");
                         setTimeout(function () {
-                            $('#progress').empty();
+                            $('#progressbar').empty();
                             bar.destroy();
                         }, 2500);
                         setTimeout(function () {
                             document.getElementById("start-bg-job").disabled = false;
-                            document.getElementById("waterStatusIcon").classList.remove('fa-tint');
-                            document.getElementById("waterStatusIcon").classList.add('fa-tint-slash');
-                            document.getElementById("waterStatusText").innerHTML = "System: Idle"
                         }, 2500);
 
                     }
@@ -274,6 +258,7 @@
                     });
 
                     $(function () {
+
                         $('#start-bg-job').click(emit_water_plants);
                     });
                 });
