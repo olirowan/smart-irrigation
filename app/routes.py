@@ -223,20 +223,16 @@ def settings():
         latitude_value = request.form.get("latitude")
         longitude_value = request.form.get("longitude")
 
-        app.logger.info(request.form.get("skip_rained_today"))
-        app.logger.info(request.form.get("skip_rained_yesterday"))
-
         if latitude_value is not None and longitude_value is not None and (latitude_value != current_user.latitude or longitude_value != current_user.longitude):
 
-            app.logger.info("Making nominatim request")
             location_info = json.dumps(get_city_country(latitude_value, longitude_value))
 
-            # app.logger.info("Current User City: ", current_user.city)
-            # app.logger.info("location_info: ", location_info)
 
             if "city" in json.loads(location_info)["address"]:
+
                 current_user.city = json.loads(location_info)["address"]["city"]
             else:
+
                 current_user.city = json.loads(location_info)["address"]["state"]
 
             current_user.country = json.loads(location_info)["address"]["country"]
@@ -252,8 +248,12 @@ def settings():
         current_user.schedule_watering = request.form.get("schedule_watering")
         current_user.skip_rained_today = request.form.get("skip_rained_today")
         current_user.skip_rained_yesterday = request.form.get("skip_rained_yesterday")
+        current_user.skip_watered_today = request.form.get("skip_watered_today")
+        current_user.skip_watered_yesterday = request.form.get("skip_watered_yesterday")
 
         db.session.commit()
+
+        return redirect(url_for("home_blueprint.settings"))
 
     return render_template(
         "settings.html",

@@ -25,6 +25,8 @@ class User(db.Model, UserMixin):
     schedule_watering = Column(String, default="eod")
     skip_rained_today = Column(String, default="1")
     skip_rained_yesterday = Column(String, default="1")
+    skip_watered_today = Column(String, default="1")
+    skip_watered_yesterday = Column(String, default="1")
 
     def __init__(self, **kwargs):
         for property, value in kwargs.items():
