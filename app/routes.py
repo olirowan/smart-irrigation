@@ -15,7 +15,7 @@ from app.util import verify_pass
 from app.tasks import long_task, message_to_client, short_task
 from pathlib import Path
 from celery_once import AlreadyQueued
-from app.weather import get_current_weather, owm_icon_mapping, get_city_country
+from app.weather import get_current_weather, owm_icon_mapping, get_city_country, get_last_rain_date, get_next_rain_date, get_last_water_date, get_next_water_date
 
 
 @blueprint.route("/index")
@@ -87,9 +87,9 @@ def dashboard():
             current_user.country
         )
 
-        current_date = datetime.datetime.now(pytz.timezone(current_user.timezone))
-
-        app.logger.info(current_date.hour)
+        current_date = datetime.datetime.now(
+            pytz.timezone(current_user.timezone)
+        )
 
         if current_date.hour > 6 and current_date.hour < 20:
 
@@ -99,11 +99,29 @@ def dashboard():
 
         weather_icon = prefix + owm_icon_mapping(current_weather.weather_code)
 
+        last_rain_date = get_last_rain_date(
+            current_user.latitude,
+            current_user.longitude
+        )
+        next_rain_date = get_next_rain_date(
+            current_user.latitude,
+            current_user.longitude
+        )
+        last_water_date = get_last_water_date()
+        next_water_date = get_next_water_date(
+            current_user.latitude,
+            current_user.longitude
+        )
+
     return render_template(
         "dashboard.html",
         weather=current_weather,
         current_date=current_date,
         weather_icon=weather_icon,
+        last_rain_date=last_rain_date,
+        next_rain_date=next_rain_date,
+        last_water_date=last_water_date,
+        next_water_date=next_water_date,
         segment=get_segment(request)
     )
 
@@ -153,8 +171,12 @@ def longtask():
             task = long_task.apply_async()
             app.logger.info(task.task_id)
 
-            return jsonify({}), 202, {'Location': url_for('home_blueprint.taskstatus',
-                                                    task_id=task.id)}
+            return jsonify({}), 202, {
+                'Location': url_for(
+                    'home_blueprint.taskstatus',
+                    task_id=task.id
+                )
+            }
 
         except AlreadyQueued:
 
@@ -173,7 +195,9 @@ def sockets():
 @socketio.on('connection', namespace='/test')
 def confirmation_message(message):
 
-    emit('confirmation', {'connection_confirmation': message['connection_confirmation']})
+    emit('confirmation', {
+        'connection_confirmation': message['connection_confirmation']
+    })
 
 
 # event handler for name submission by the client
@@ -323,7 +347,9 @@ def login():
 
         # Something (user or pass) is not ok
         return render_template(
-            "accounts/login.html", msg="Wrong user or password", form=login_form
+            "accounts/login.html",
+            msg="Wrong user or password",
+            form=login_form
         )
 
     if not current_user.is_authenticated:

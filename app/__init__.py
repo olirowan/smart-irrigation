@@ -7,16 +7,11 @@ from flask_sqlalchemy import SQLAlchemy
 from logging.handlers import RotatingFileHandler
 from flask_login import LoginManager
 from importlib import import_module
+from flask_moment import Moment
 from flask_uploads import IMAGES, UploadSet, configure_uploads
-
 from flask import Blueprint
-
-from flask_debugtoolbar import DebugToolbarExtension
-
 from celery import Celery
-
 from flask_socketio import SocketIO
-
 from celery_once import QueueOnce
 
 # instantiate the app
@@ -27,18 +22,13 @@ app.config.from_object(Config)
 db = SQLAlchemy()
 login_manager = LoginManager()
 
-toolbar = DebugToolbarExtension(app)
-
 photos = UploadSet("photos", IMAGES)
 configure_uploads(app, photos)
 
 # enable CORS
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-
-# Configure celery configuration
-# celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-# celery.conf.update(app.config)
+moment = Moment(app)
 
 
 # Configure celery configuration
@@ -117,15 +107,6 @@ blueprint = Blueprint(
 
 module = import_module("app.routes")
 app.register_blueprint(module.blueprint)
-
-
-# def create_app(config):
-#     app = Flask(__name__, static_folder="base/static")
-#     app.config.from_object(config)
-#     register_extensions(app)
-#     register_blueprints(app)
-#     configure_database(app)
-#     return app
 
 
 from app import routes, models, util

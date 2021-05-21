@@ -1,44 +1,9 @@
 import time
+from datetime import datetime
 import random
-from app import app, celery
-from flask_socketio import SocketIO, emit, join_room
-
-
-# def make_celery(app):
-
-#     celery = Celery(
-#         app.import_name,
-#         backend=app.config['CELERY_RESULT_BACKEND'],
-#         broker=app.config['CELERY_BROKER_URL']
-#     )
-#     celery.conf.update(app.config)
-
-#     celery.conf.ONCE = {
-#         'backend': 'celery_once.backends.Redis',
-#         'settings': {
-#             'url': app.config['CELERY_BROKER_URL'],
-#             'default_timeout': 60 * 60
-#         }
-#     }
-
-#     class ContextTask(celery.Task):
-#         def __call__(self, *args, **kwargs):
-#             with app.app_context():
-#                 return self.run(*args, **kwargs)
-
-#     celery.Task = ContextTask
-
-#     class ContextQueueOnce(QueueOnce):
-#         def __call__(self, *args, **kwargs):
-#             with app.app_context():
-#                 return super(ContextQueueOnce, self).__call__(*args, **kwargs)
-
-#     celery.QueueOnce = ContextQueueOnce
-
-#     return celery
-
-
-# celery = make_celery(app)
+from app import app, celery, db
+from app.models import Watering
+from flask_socketio import SocketIO
 
 
 @celery.task(
@@ -55,7 +20,10 @@ def long_task(self):
         if not message or i == 9:
             message = 'Watering in progress...'
 
-        self.update_state(state='PROGRESS', meta={'current': i, 'total': total, 'status': message})
+        self.update_state(
+            state='PROGRESS',
+            meta={'current': i, 'total': total, 'status': message}
+        )
 
         time.sleep(1)
     return {'current': 100, 'total': 100, 'status': 'Task completed!',
@@ -65,24 +33,31 @@ def long_task(self):
 @celery.task(
     bind=True,
     base=celery.QueueOnce,
-    once={'timeout': 8}
+    once={'timeout': 60}
 )
 def short_task(self):
 
     socketio = SocketIO(message_queue=app.config['CELERY_BROKER_URL'])
 
-    total = 8
-    for i in range(0, total, 1):
-        if i < total:
+    duration_seconds = 60
+    for i in range(0, duration_seconds, 1):
+        if i < duration_seconds:
             message = "Watering in progress..."
 
         socketio.emit("short_response", {
             "current": i,
-            "total": total,
+            "total": duration_seconds,
             "status": message
         }, namespace="/test")
 
         time.sleep(1)
+
+    water_event = Watering()
+    water_event.watered_at = datetime.now().timestamp()
+    water_event.water_duration_minutes = (duration_seconds / 60)
+
+    db.session.add(water_event)
+    db.session.commit()
 
     socketio.emit('short_response', {
         "current": 100,
@@ -100,6 +75,13 @@ def message_to_client(name, room):
     count = 5
     while count > 1:
         count -= 1
-        socketio.emit('response', {'count': count}, namespace='/test', room=room)
+
+        socketio.emit(
+            'response', {'count': count},
+            namespace='/test',
+            room=room
+        )
+
         time.sleep(1)
+
     socketio.emit('response', {'name': name}, namespace='/test', room=room)

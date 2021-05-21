@@ -46,6 +46,17 @@ class User(db.Model, UserMixin):
         return str(self.username)
 
 
+class Watering(db.Model, UserMixin):
+
+    __tablename__ = "Watering"
+
+    id = Column(Integer, primary_key=True)
+    water_duration_minutes = Column(String, default="60")
+    if_scheduled_water = Column(String, default="1")
+    if_cancelled = Column(String, default="0")
+    watered_at = Column(String)
+
+
 @login_manager.user_loader
 def user_loader(id):
     return User.query.filter_by(id=id).first()

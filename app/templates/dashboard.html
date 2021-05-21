@@ -97,7 +97,11 @@
 
                                     <div class="col-12 col-xl-12 px-xl-0">
                                         <h4 class="h6 text-white">
-                                            {{ current_date.strftime('%A %d %b') }}
+                                            {% if last_rain_date is string %}
+                                                {{ last_rain_date }}
+                                            {% else %}
+                                                {{ moment(last_rain_date, local=true).fromNow() }}
+                                            {% endif %}
                                         </h4>
                                     </div>
                                 </div>
@@ -113,7 +117,11 @@
 
                                     <div class="col-12 col-xl-12 px-xl-0">
                                         <h4 class="h6 text-white">
-                                            {{ current_date.strftime('%A %d %b') }}
+                                            {% if last_water_date is string %}
+                                                {{ last_water_date }}
+                                            {% else %}
+                                                {{ moment(last_water_date, local=true).fromNow() }}
+                                            {% endif %}
                                         </h4>
                                     </div>
                                 </div>
@@ -129,7 +137,11 @@
 
                                     <div class="col-12 col-xl-12 px-xl-0">
                                         <h4 class="h6 text-white">
-                                            {{ current_date.strftime('%A %d %b') }}
+                                            {% if next_rain_date is string %}
+                                                {{ next_rain_date }}
+                                            {% else %}
+                                                {{ moment(next_rain_date, local=true).fromNow() }} 
+                                            {% endif %}
                                         </h4>
                                     </div>
                                 </div>
@@ -145,7 +157,11 @@
 
                                     <div class="col-12 col-xl-12 px-xl-0">
                                         <h4 class="h6 text-white">
-                                            {{ current_date.strftime('%A %d %b') }}
+                                            {% if next_water_date is string %}
+                                                {{ next_water_date }}
+                                            {% else %}
+                                                {{ moment(next_water_date, local=true).fromNow() }}
+                                            {% endif %}                                            
                                         </h4>
                                     </div>
                                 </div>
