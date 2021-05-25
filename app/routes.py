@@ -79,39 +79,57 @@ def dashboard():
         current_weather.detailed_status = "Location Setting Required"
         current_date = datetime.datetime.now(pytz.timezone("Europe/London"))
         weather_icon = "fas fa-ban"
+        last_rain_date = "API Key Required"
+        next_rain_date = "API Key Required"
+        last_water_date = "N/A"
+        next_water_date = "API Key Required"
 
     else:
 
-        current_weather = get_current_weather(
-            current_user.city,
-            current_user.country
-        )
+        try:
 
-        current_date = datetime.datetime.now(
-            pytz.timezone(current_user.timezone)
-        )
+            current_weather = get_current_weather(
+                current_user.city,
+                current_user.country
+            )
 
-        if current_date.hour > 6 and current_date.hour < 20:
+            current_date = datetime.datetime.now(
+                pytz.timezone(current_user.timezone)
+            )
 
-            prefix = "wi wi-day-"
-        else:
-            prefix = "wi wi-night-"
+            if current_date.hour > 6 and current_date.hour < 20:
 
-        weather_icon = prefix + owm_icon_mapping(current_weather.weather_code)
+                prefix = "wi wi-day-"
+            else:
+                prefix = "wi wi-night-"
 
-        last_rain_date = get_last_rain_date(
-            current_user.latitude,
-            current_user.longitude
-        )
-        next_rain_date = get_next_rain_date(
-            current_user.latitude,
-            current_user.longitude
-        )
-        last_water_date = get_last_water_date()
-        next_water_date = get_next_water_date(
-            current_user.latitude,
-            current_user.longitude
-        )
+            weather_icon = prefix + owm_icon_mapping(current_weather.weather_code)
+
+            last_rain_date = get_last_rain_date(
+                current_user.latitude,
+                current_user.longitude
+            )
+            next_rain_date = get_next_rain_date(
+                current_user.latitude,
+                current_user.longitude
+            )
+            last_water_date = get_last_water_date()
+            next_water_date = get_next_water_date(
+                current_user.latitude,
+                current_user.longitude
+            )
+        except Exception as e:
+
+            app.logger.error(e)
+            current_weather = types.SimpleNamespace()
+            current_weather.detailed_status = "Invalid API Key"
+            current_date = datetime.datetime.now(pytz.timezone("Europe/London"))
+            weather_icon = "fas fa-ban"
+            last_rain_date = "Invalid API Key"
+            next_rain_date = "Invalid API Key"
+            last_water_date = "N/A"
+            next_water_date = "Invalid API Key"
+
 
     return render_template(
         "dashboard.html",
@@ -312,12 +330,12 @@ def profileimage():
 
             flash('Profile image updated.')
 
-            return redirect(url_for("home_blueprint.profile"))
+            return redirect(url_for("home_blueprint.settings"))
 
         except Exception as e:
             app.logger.info("Exception: ", str(e))
 
-    return redirect(url_for("home_blueprint.profile"))
+    return redirect(url_for("home_blueprint.settings"))
 
 
 @blueprint.route("/celery", methods=['GET', 'POST'])

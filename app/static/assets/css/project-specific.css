@@ -129,3 +129,8 @@ body,html {
   color: #ffffff;
   background-color: unset;
 }
+
+.form-check-input:checked {
+  background-color: #e9b25d;
+  /* border-color: #262B40; */
+}

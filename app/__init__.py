@@ -91,8 +91,8 @@ app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.DEBUG)
 
 app.logger.info("STARTED project")
-app.logger.info("DEBUG = " + app.config["DEBUG"])
-app.logger.info("DBMS  = " + app.config["SQLALCHEMY_DATABASE_URI"])
+app.logger.info("DEBUG = " + str(app.config["DEBUG"]))
+app.logger.info("DBMS  = " + str(app.config["SQLALCHEMY_DATABASE_URI"]))
 
 db.init_app(app)
 login_manager.init_app(app)
