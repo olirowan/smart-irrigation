@@ -5,7 +5,6 @@ import json
 import pytz
 from geopy.geocoders import Nominatim
 from flask_login import current_user
-from app.models import Watering
 from app import app
 
 
@@ -142,8 +141,6 @@ def get_last_rain_date(location_latitude, location_longitude):
 
                 for daily_weather in reversed(historical_weather):
 
-                    app.logger.info(daily_weather)
-
                     if daily_weather.status.lower() == "rain":
 
                         last_rain_date = convert_local_utc(
@@ -169,7 +166,7 @@ def get_next_rain_date(location_latitude, location_longitude):
 
     for hourly_weather in upcoming_weather:
 
-        if hourly_weather.status == "Rain":
+        if hourly_weather.status.lower() == "rain":
 
             next_rain_date = convert_local_utc(hourly_weather.ref_time)
 
@@ -197,23 +194,126 @@ def get_last_water_date():
 
 def get_next_water_date(location_latitude, location_longitude):
 
-    upcoming_weather = get_one_call_current(
-        location_latitude,
-        location_longitude
+    if_rained_today = False
+    if_rained_yesterday = False
+    if_watered_today = False
+    if_watered_yesterday = False
+
+    # Check if user has actually set their preferred watering time
+    if current_user.watering_start_at is None:
+
+        return "Configuration not set"
+
+    # Get the current datetime to manipulate to match the user settings
+    current_utc_timestamp = convert_local_utc(datetime.now().timestamp())
+    current_datetime = datetime.fromtimestamp(current_utc_timestamp)
+
+    # Modify the datetimes hour/minute values to match user settings
+    modified_datetime = current_datetime.replace(
+        hour=int(current_user.watering_start_at.split(":")[0]),
+        minute=int(current_user.watering_start_at.split(":")[1]),
+        second=0,
+        microsecond=0
     )
 
-    next_water_date = "Unknown"
+    # If the hour/minute setting has already passed today, set day to tomorrow
+    if modified_datetime > current_datetime:
 
-    for hourly_weather in reversed(upcoming_weather):
-
-        if hourly_weather.status == "Rain":
-
-            next_water_date = convert_utc_local(hourly_weather.ref_time)
-
-            break
-
-    if next_water_date is None:
-
-        return "currently unknown"
+        next_water_date = modified_datetime
     else:
+
+        next_water_date = modified_datetime + timedelta(days=1)
+
+    # Store the last saved water time
+    last_water_date = get_last_water_date()
+
+    # boolean for whether last watered date was today
+    if last_water_date.date() == current_datetime.date():
+
+        if_watered_today = True
+
+    # boolean for whether last watered date was yesterday
+    if last_water_date.date() == (current_datetime.date() - timedelta(days=1)):
+
+        if_watered_yesterday = True
+
+    # If user settings are impacted by rainfall:
+    #   - store upcoming rain
+    #   - store if it rained yesterday
+    #   - store if it rained today
+    if (current_user.skip_rained_today == "on" or
+            current_user.skip_rained_yesterday == "on"):
+
+        upcoming_weather = get_one_call_current(
+            location_latitude,
+            location_longitude
+        )
+
+        for hourly_weather in reversed(upcoming_weather):
+
+            if hourly_weather.status.lower() == "rain":
+
+                latest_rain_date = convert_utc_local(hourly_weather.ref_time)
+                break
+
+        if latest_rain_date is None:
+
+            latest_rain_date = "unknown"
+
+        todays_weather = get_one_call_history(
+            0,
+            current_user.latitude,
+            current_user.longitude
+        )
+
+        yesterdays_weather = get_one_call_history(
+            1,
+            current_user.latitude,
+            current_user.longitude
+        )
+
+        for todays_weather_statuses in todays_weather:
+
+            if todays_weather_statuses.status.lower() == "rain":
+
+                if_rained_today = True
+                break
+
+        for weather_statuses in yesterdays_weather:
+
+            if weather_statuses.status.lower() == "rain":
+
+                if_rained_yesterday = True
+                break
+
+    # If there's no historical watering and the user settings are not
+    # impacted by rainfall, then water at next time occurance
+    if (last_water_date == "never" and
+        ((current_user.skip_rained_today != "on" and
+            current_user.skip_rained_yesterday != "on") or latest_rain_date == "unknown")):
+
         return datetime.fromtimestamp(next_water_date)
+
+    else:
+
+        if current_user.skip_watered_today == "on" and if_watered_today is True:
+            if next_water_date.date() <= current_datetime.date():
+                next_water_date = next_water_date + timedelta(days=1)
+
+        if current_user.skip_watered_yesterday == "on" and if_watered_yesterday is True:
+            if next_water_date.date() <= current_datetime.date():
+                next_water_date = next_water_date + timedelta(days=1)
+
+        if current_user.skip_rained_today == "on" and if_rained_today is True:
+            if next_water_date.date() <= current_datetime.date():
+                next_water_date = next_water_date + timedelta(days=1)
+
+        if current_user.skip_rained_yesterday == "on" and if_rained_yesterday is True:
+            if next_water_date.date() <= current_datetime.date():
+                next_water_date = next_water_date + timedelta(days=1)
+
+        if current_user.schedule_watering == "eod" and if_watered_yesterday is True:
+            if next_water_date.date() <= current_datetime.date():
+                next_water_date = next_water_date + timedelta(days=1)
+
+        return next_water_date

@@ -141,8 +141,8 @@
                             <div class="col-md-3 mb-3">
                                 <div class="form-group">
                                     <label class="text-white" for="address">Start time:</label>
-                                    <input class="form-control" id="water_start_time" name="water_start_time" type="text" {% if
-                                        current_user.water_start_time %} value="{{ current_user.water_start_time }}" {% endif %}
+                                    <input class="form-control" id="water_start_time" name="water_start_time" type="time" {% if
+                                        current_user.watering_start_at %} value="{{ current_user.watering_start_at }}" {% endif %}
                                         placeholder="18">
                                 </div>
                             </div>

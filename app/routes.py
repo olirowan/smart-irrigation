@@ -7,6 +7,7 @@ import hashlib
 import datetime
 import pytz
 import json
+import traceback
 import types
 from app import db, login_manager, photos, celery, socketio
 from app.forms import LoginForm, CreateAccountForm
@@ -121,6 +122,7 @@ def dashboard():
         except Exception as e:
 
             app.logger.error(e)
+            app.logger.info(traceback.format_exc())
             current_weather = types.SimpleNamespace()
             current_weather.detailed_status = "Invalid API Key"
             current_date = datetime.datetime.now(pytz.timezone("Europe/London"))
@@ -292,6 +294,10 @@ def settings():
         current_user.skip_rained_yesterday = request.form.get("skip_rained_yesterday")
         current_user.skip_watered_today = request.form.get("skip_watered_today")
         current_user.skip_watered_yesterday = request.form.get("skip_watered_yesterday")
+
+        current_user.watering_start_at = request.form.get("water_start_time")
+        log_me = request.form.get("water_start_time")
+        app.logger.info(log_me)
 
         db.session.commit()
 
