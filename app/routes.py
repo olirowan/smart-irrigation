@@ -114,11 +114,12 @@ def dashboard():
                 current_user.latitude,
                 current_user.longitude
             )
-            last_water_date = get_last_water_date()
+            last_water_date, last_water_duration = get_last_water_date()
             next_water_date = get_next_water_date(
                 current_user.latitude,
                 current_user.longitude
             )
+
         except Exception as e:
 
             app.logger.error(e)
@@ -130,6 +131,7 @@ def dashboard():
             last_rain_date = "Invalid API Key"
             next_rain_date = "Invalid API Key"
             last_water_date = "N/A"
+            last_water_duration = "N/A"
             next_water_date = "Invalid API Key"
 
 
@@ -141,6 +143,7 @@ def dashboard():
         last_rain_date=last_rain_date,
         next_rain_date=next_rain_date,
         last_water_date=last_water_date,
+        last_water_duration=last_water_duration,
         next_water_date=next_water_date,
         segment=get_segment(request)
     )
@@ -367,18 +370,18 @@ def login():
         if user and verify_pass(password, user.password):
 
             login_user(user)
-            return redirect(url_for("home_blueprint.route_default"))
+            return redirect(url_for("home_blueprint.dashboard"))
 
         # Something (user or pass) is not ok
         return render_template(
-            "accounts/login.html",
+            "login.html",
             msg="Wrong user or password",
             form=login_form
         )
 
     if not current_user.is_authenticated:
-        return render_template("accounts/login.html", form=login_form)
-    return redirect(url_for("home_blueprint.index"))
+        return render_template("login.html", form=login_form)
+    return redirect(url_for("home_blueprint.dashboard"))
 
 
 @blueprint.route("/register", methods=["GET", "POST"])
@@ -395,7 +398,7 @@ def register():
         user = User.query.filter_by(username=username).first()
         if user:
             return render_template(
-                "accounts/register.html",
+                "register.html",
                 msg="Username already registered",
                 success=False,
                 form=create_account_form,
@@ -405,7 +408,7 @@ def register():
         user = User.query.filter_by(email=email).first()
         if user:
             return render_template(
-                "accounts/register.html",
+                "register.html",
                 msg="Email already registered",
                 success=False,
                 form=create_account_form,
@@ -417,14 +420,14 @@ def register():
         db.session.commit()
 
         return render_template(
-            "accounts/register.html",
+            "register.html",
             msg='User created please <a href="/login">login</a>',
             success=True,
             form=create_account_form,
         )
 
     else:
-        return render_template("accounts/register.html", form=create_account_form)
+        return render_template("register.html", form=create_account_form)
 
 
 @blueprint.route("/logout")

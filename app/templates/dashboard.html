@@ -43,7 +43,7 @@
 
                                 <div class="col-12 col-xl-12 px-xl-0">
                                     <h4 class="h6 text-white">
-                                        {{ current_date.strftime('%A %d %b, %H:%M') }}
+                                        {{ current_date.strftime('%a %d %b, %H:%M') }}
                                     </h4>
                                     <h4 class="h6 mt-2 text-white">
                                         <span class="fas fa-globe-europe text-white"></span>
@@ -96,13 +96,18 @@
                                     </div>
 
                                     <div class="col-12 col-xl-12 px-xl-0">
-                                        <h4 class="h6 text-white">
-                                            {% if last_rain_date is string %}
+                                        {% if last_rain_date is string %}
+                                            <h4 class="h6 text-white">
                                                 {{ last_rain_date }}
-                                            {% else %}
+                                            </h4>
+                                        {% else %}
+                                            <h4 class="h6 text-white">
                                                 {{ moment(last_rain_date, local=true).fromNow() }}
-                                            {% endif %}
-                                        </h4>
+                                            </h4>
+                                            <h4 class="h6 text-white">
+                                                {{ last_rain_date.strftime('%a %d %b, %H:%M') }}
+                                            </h4>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -116,13 +121,18 @@
                                     </div>
 
                                     <div class="col-12 col-xl-12 px-xl-0">
-                                        <h4 class="h6 text-white">
-                                            {% if last_water_date is string %}
+                                        {% if last_water_date is string %}
+                                            <h4 class="h6 text-white">
                                                 {{ last_water_date }}
-                                            {% else %}
-                                                {{ moment(last_water_date, local=true).fromNow() }}
-                                            {% endif %}
-                                        </h4>
+                                            </h4>
+                                        {% else %}
+                                            <h4 class="h6 text-white">
+                                                {{ moment(last_water_date, local=true).fromNow() }} ({{ last_water_duration }}m)
+                                            </h4>
+                                            <h4 class="h6 text-white">
+                                                {{ last_water_date.strftime('%a %d %b, %H:%M') }}
+                                            </h4>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -136,13 +146,18 @@
                                     </div>
 
                                     <div class="col-12 col-xl-12 px-xl-0">
-                                        <h4 class="h6 text-white">
-                                            {% if next_rain_date is string %}
+                                        {% if next_rain_date is string %}
+                                            <h4 class="h6 text-white">
                                                 {{ next_rain_date }}
-                                            {% else %}
-                                                {{ moment(next_rain_date, local=true).fromNow() }} 
-                                            {% endif %}
-                                        </h4>
+                                            </h4>
+                                        {% else %}
+                                            <h4 class="h6 text-white">
+                                                {{ moment(next_rain_date, local=true).fromNow() }}
+                                            </h4>
+                                            <h4 class="h6 text-white">
+                                                {{ next_rain_date.strftime('%a %d %b, %H:%M') }}
+                                            </h4>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -156,13 +171,18 @@
                                     </div>
 
                                     <div class="col-12 col-xl-12 px-xl-0">
-                                        <h4 class="h6 text-white">
-                                            {% if next_water_date is string %}
+                                        {% if next_water_date is string %}
+                                            <h4 class="h6 text-white">
                                                 {{ next_water_date }}
-                                            {% else %}
+                                            </h4>
+                                        {% else %}
+                                            <h4 class="h6 text-white">
                                                 {{ moment(next_water_date, local=true).fromNow() }}
-                                            {% endif %}                                            
-                                        </h4>
+                                            </h4>
+                                            <h4 class="h6 text-white">
+                                                {{ next_water_date.strftime('%a %d %b, %H:%M') }}
+                                            </h4>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>

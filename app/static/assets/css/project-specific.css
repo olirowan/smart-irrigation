@@ -80,6 +80,16 @@ body,html {
   transition: color 0.5s ease-in-out, background-color 0.5s ease-in-out, border-color 0.5s ease-in-out;
 }
 
+.sidebar .nav-item.active>.nav-link  {
+  color: #333;
+  background-color: #e9b25d;
+}
+
+.sidebar .nav-item.active>.nav-link .sidebar-icon {
+  color: #333;
+  background-color: #e9b25d;
+}
+
 .row-eq-height {
     display: -webkit-box;
     display: -webkit-flex;
@@ -123,6 +133,10 @@ body,html {
 
 .text-gold {
   color: #e9b25d !important;
+}
+
+.text-gold:hover {
+  color: #fff !important;
 }
 
 .icon-shape-white {

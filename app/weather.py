@@ -164,13 +164,15 @@ def get_next_rain_date(location_latitude, location_longitude):
         location_longitude
     )
 
+    current_time = convert_local_utc(datetime.now().timestamp())
+
     for hourly_weather in upcoming_weather:
-
         if hourly_weather.status.lower() == "rain":
+            if current_time < hourly_weather.ref_time:
 
-            next_rain_date = convert_local_utc(hourly_weather.ref_time)
+                next_rain_date = convert_local_utc(hourly_weather.ref_time)
 
-            break
+                break
 
     if next_rain_date is None:
 
@@ -187,9 +189,9 @@ def get_last_water_date():
 
     if last_water_date is None:
 
-        return "never"
+        return "never", "n/a"
     else:
-        return datetime.fromtimestamp(float(last_water_date.watered_at))
+        return datetime.fromtimestamp(float(last_water_date.watered_at)), last_water_date.water_duration_minutes
 
 
 def get_next_water_date(location_latitude, location_longitude):
@@ -200,9 +202,9 @@ def get_next_water_date(location_latitude, location_longitude):
     if_watered_yesterday = False
 
     # Check if user has actually set their preferred watering time
-    if current_user.watering_start_at is None:
+    if (current_user.watering_start_at == "" or current_user.watering_start_at is None):
 
-        return "Configuration not set"
+        return "Configuration Not Set"
 
     # Get the current datetime to manipulate to match the user settings
     current_utc_timestamp = convert_local_utc(datetime.now().timestamp())
@@ -225,17 +227,19 @@ def get_next_water_date(location_latitude, location_longitude):
         next_water_date = modified_datetime + timedelta(days=1)
 
     # Store the last saved water time
-    last_water_date = get_last_water_date()
+    last_water_date, last_water_duration = get_last_water_date()
 
-    # boolean for whether last watered date was today
-    if last_water_date.date() == current_datetime.date():
+    if last_water_date != "never":
 
-        if_watered_today = True
+        # boolean for whether last watered date was today
+        if last_water_date.date() == current_datetime.date():
 
-    # boolean for whether last watered date was yesterday
-    if last_water_date.date() == (current_datetime.date() - timedelta(days=1)):
+            if_watered_today = True
 
-        if_watered_yesterday = True
+        # boolean for whether last watered date was yesterday
+        if last_water_date.date() == (current_datetime.date() - timedelta(days=1)):
+
+            if_watered_yesterday = True
 
     # If user settings are impacted by rainfall:
     #   - store upcoming rain
@@ -253,7 +257,9 @@ def get_next_water_date(location_latitude, location_longitude):
 
             if hourly_weather.status.lower() == "rain":
 
-                latest_rain_date = convert_utc_local(hourly_weather.ref_time)
+                latest_rain_date = datetime.fromtimestamp(
+                    convert_utc_local(hourly_weather.ref_time)
+                )
                 break
 
         if latest_rain_date is None:
@@ -292,7 +298,7 @@ def get_next_water_date(location_latitude, location_longitude):
         ((current_user.skip_rained_today != "on" and
             current_user.skip_rained_yesterday != "on") or latest_rain_date == "unknown")):
 
-        return datetime.fromtimestamp(next_water_date)
+        return next_water_date
 
     else:
 
@@ -307,9 +313,15 @@ def get_next_water_date(location_latitude, location_longitude):
         if current_user.skip_rained_today == "on" and if_rained_today is True:
             if next_water_date.date() <= current_datetime.date():
                 next_water_date = next_water_date + timedelta(days=1)
+            
+            if next_water_date.date() == latest_rain_date.date():
+                next_water_date = next_water_date + timedelta(days=1)
 
         if current_user.skip_rained_yesterday == "on" and if_rained_yesterday is True:
             if next_water_date.date() <= current_datetime.date():
+                next_water_date = next_water_date + timedelta(days=1)
+            
+            if next_water_date.date() == (latest_rain_date + timedelta(days=1)).date():
                 next_water_date = next_water_date + timedelta(days=1)
 
         if current_user.schedule_watering == "eod" and if_watered_yesterday is True:

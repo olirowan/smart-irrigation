@@ -1,0 +1,89 @@
+{% extends "layouts/base-fullscreen.html" %}
+
+{% block title %} Register {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block body_class %} bg-soft {% endblock body_class %}
+
+{% block content %}
+
+    <main>
+
+        <!-- Section -->
+        <section class="vh-lg-100 d-flex align-items-center">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-12 d-flex align-items-center justify-content-center">
+                        <!-- <div class="signin-inner my-3 my-lg-0 bg-white shadow-soft border rounded border-light p-4 p-lg-5 w-100 fmxw-500"> -->
+                        <div class="signin-inner card card-body my-3 my-lg-0 bg-white shadow-soft border rounded border-dark p-4 p-lg-5 w-100 fmxw-500">
+
+                            <div class="text-center text-md-center mb-4 mt-md-0">
+            <div class="row d-flex">
+                <div class="col-4 px-0">
+                    <img src="/static/assets/img/plantlogo.svg" alt="Smart Irrigation">    
+                </div>
+                <div class="col-6 px-0 align-self-center">
+                    <h1 class="text-white nav-title-text">Smart Irrigation</h1>
+                </div>
+            </div>
+            <div>
+                                <p>
+                                    {% if msg %}
+                                        {{ msg | safe }}
+                                    {% endif %}                                     
+                                </p>    
+                            </div>
+                            
+                            <form method="post" action="">
+                            
+                                {{ form.hidden_tag() }}
+
+                                <!-- Form -->
+                                <div class="form-group mb-4">
+                                    <!-- <label class="text-gold" for="email">Username</label> -->
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="basic-addon3"><span class="fas fa-user-shield"></span></span>
+                                        {{ form.username(placeholder="Username", class="form-control") }}
+                                    </div>  
+                                </div>
+                                <!-- End of Form -->
+
+                                <!-- Form -->
+                                <div class="form-group mb-4">
+                                    <!-- <label class="text-gold" for="email">Your Email</label> -->
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="basic-addon3"><span class="fas fa-envelope"></span></span>
+                                        {{ form.email(placeholder="Email", class="input form-control", type="email") }}
+                                    </div>  
+                                </div>
+                                <!-- End of Form -->
+
+                                <div class="form-group">
+                                    <!-- Form -->
+                                    <div class="form-group mb-4">
+                                        <!-- <label class="text-gold" for="password">Your Password</label> -->
+                                        <div class="input-group">
+                                            <span class="input-group-text" id="basic-addon4"><span class="fas fa-unlock-alt"></span></span>
+                                            {{ form.password(placeholder="Password", class="form-control", type="password") }}
+                                        </div>  
+                                    </div>
+                                    <!-- End of Form -->
+                                </div>
+                                <button type="submit" name="register" class="btn btn-block btn-light">Register</button>
+                            </form>
+                            <div class="d-flex justify-content-center align-items-center mt-4">
+                                <a href="{{ url_for('home_blueprint.login') }}" class="small text-gold text-right">Sign In</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
