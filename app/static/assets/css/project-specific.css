@@ -1,7 +1,7 @@
 body,html {
   height: 100%;
   min-width: 100%;
-  background-image: url("/static/assets/img/background/6.jpg");
+  background-image: url("/static/assets/img/background/background.jpg");
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: center;
@@ -9,12 +9,6 @@ body,html {
 }
 
 .bg-soft {
-  /* background-image: linear-gradient(to right bottom, #20202c, #3b404d, #576270, #768794, #97adb8, #a3bbc7, #b0cad5, #bdd9e4, #b7d2e0, #b1ccdc, #acc5d7, #a7bed3) !important; */
-  /* background-image: linear-gradient(to right bottom, #20202c, #2e3342, #3a485a, #475f71, #537687, #5e8495, #6a92a2, #76a1b0, #82a8b9, #8eafc2, #9bb7cb, #a7bed3) !important; */
-  /* background-image: url("/static/assets/img/background/1.jpg");
-  background-size: cover; */
-  /* background-image: inherit;
-  background-size: inherit; */
   background-color: unset !important;
 }
 
@@ -36,11 +30,7 @@ body,html {
 }
 
 .card {
-  /* background-color: #20202c9a !important; */ 
-  /* background-color: #20202C !important; */
-  /* background-color: #20202ce5 !important; */
   background-color: #20202cc9 !important;
-  /* opacity: 90%; */
 }
 
 .btn-primary {
@@ -111,7 +101,6 @@ body,html {
 }
 
 .bg-info {
-  /* background-color: #2E5266 !important; */
   background-color: #b38540 !important;
 }
 
@@ -146,5 +135,4 @@ body,html {
 
 .form-check-input:checked {
   background-color: #e9b25d;
-  /* border-color: #262B40; */
 }
