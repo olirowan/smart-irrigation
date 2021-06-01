@@ -51,20 +51,20 @@
 
             <li role="separator" class="dropdown-divider mt-4 mb-3 border-black"></li>
 
-            <li class="nav-item  {% if 'settings' in segment %} active {% endif %}">
-                <a href="{{ url_for('home_blueprint.profile') }}" class="nav-link">
+            <li class="nav-item  {% if 'hardware' in segment %} active {% endif %}">
+                <a href="{{ url_for('home_blueprint.settings') }}" class="nav-link">
                     <span class="sidebar-icon"><span class="fas fa-microchip"></span></span>
                     <span>Hardware</span>
                 </a>
             </li>
-            <li class="nav-item  {% if 'settings' in segment %} active {% endif %}">
-                <a href="{{ url_for('home_blueprint.profile') }}" class="nav-link">
+            <li class="nav-item  {% if 'application' in segment %} active {% endif %}">
+                <a href="{{ url_for('home_blueprint.settings') }}" class="nav-link">
                     <span class="sidebar-icon"><span class="fas fa-code"></span></span>
                     <span>Application</span>
                 </a>
             </li>
-            <li class="nav-item  {% if 'settings' in segment %} active {% endif %}">
-                <a href="{{ url_for('home_blueprint.profile') }}" class="nav-link">
+            <li class="nav-item  {% if 'infrastructure' in segment %} active {% endif %}">
+                <a href="{{ url_for('home_blueprint.settings') }}" class="nav-link">
                     <span class="sidebar-icon"><span class="fas fa-server"></span></span>
                     <span>Infrastructure</span>
                 </a>

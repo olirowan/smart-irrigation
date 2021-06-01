@@ -29,7 +29,7 @@
                 </div>
             </div>
             <div>
-                                <p>
+                                <p class="text-danger">
                                     {% if msg %}
                                         {{ msg | safe }}
                                     {% endif %}                                     
@@ -44,7 +44,7 @@
                                 <div class="form-group mb-4">
                                     <!-- <label class="text-gold" for="email">Username</label> -->
                                     <div class="input-group">
-                                        <span class="input-group-text" id="basic-addon3"><span class="fas fa-user-shield"></span></span>
+                                        <span class="input-group-text" id="basic-addon3"><span class="fas fa-user-circle"></span></span>
                                         {{ form.username(placeholder="Username", class="form-control") }}
                                     </div>  
                                 </div>

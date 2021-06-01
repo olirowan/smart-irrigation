@@ -1,19 +1,18 @@
 from flask import render_template, redirect, url_for, request, flash, jsonify
 from flask_login import current_user, login_required, login_user, logout_user
-from jinja2 import TemplateNotFound
 from app import blueprint, app
-from flask_socketio import emit, join_room
+from flask_socketio import emit
 import hashlib
 import datetime
 import pytz
 import json
 import traceback
 import types
-from app import db, login_manager, photos, celery, socketio
+from app import db, login_manager, photos, socketio
 from app.forms import LoginForm, CreateAccountForm
 from app.models import User
 from app.util import verify_pass
-from app.tasks import long_task, message_to_client, short_task
+from app.tasks import long_task, short_task
 from pathlib import Path
 from celery_once import AlreadyQueued
 from app.weather import get_current_weather, owm_icon_mapping, get_city_country, get_last_rain_date, get_next_rain_date, get_last_water_date, get_next_water_date
@@ -23,46 +22,7 @@ from app.weather import get_current_weather, owm_icon_mapping, get_city_country,
 @login_required
 def index():
 
-    return render_template("index.html", segment="index")
-
-
-@blueprint.route("/<template>")
-@login_required
-def route_template(template):
-
-    try:
-
-        if not template.endswith(".html"):
-            template += ".html"
-
-        # Detect the current page
-        segment = get_segment(request)
-
-        # Serve the file (if exists) from app/templates/FILE.html
-        return render_template(template, segment=segment)
-
-    except TemplateNotFound:
-        return render_template("page-404.html"), 404
-
-    except Exception as e:
-        app.logger.critical(e, exc_info=True)
-        return render_template("page-500.html"), 500
-
-
-# Helper - Extract current page name from request
-def get_segment(request):
-
-    try:
-
-        segment = request.path.split("/")[-1]
-
-        if segment == "":
-            segment = "index"
-
-        return segment
-
-    except:
-        return None
+    return render_template("dashboard.html")
 
 
 @blueprint.route("/")
@@ -73,6 +33,8 @@ def route_default():
 @blueprint.route("/dashboard")
 @login_required
 def dashboard():
+
+    active_icon = "dashboard"
 
     if current_user.city is None or current_user.country is None or current_user.timezone is None:
 
@@ -145,123 +107,15 @@ def dashboard():
         last_water_date=last_water_date,
         last_water_duration=last_water_duration,
         next_water_date=next_water_date,
-        segment=get_segment(request)
-    )
-
-
-@blueprint.route('/status/<task_id>')
-def taskstatus(task_id):
-
-    task = long_task.AsyncResult(task_id)
-
-    if task.state == 'PENDING':
-
-        response = {
-            'state': task.state,
-            'current': 0,
-            'total': 1,
-            'status': 'Pending...'
-        }
-
-    elif task.state != 'FAILURE':
-
-        response = {
-            'state': task.state,
-            'current': task.info.get('current', 0),
-            'total': task.info.get('total', 1),
-            'status': task.info.get('status', '')
-        }
-
-        if 'result' in task.info:
-            response['result'] = task.info['result']
-    else:
-
-        response = {
-            'state': task.state,
-            'current': 1,
-            'total': 1,
-            'status': str(task.info),  # this is the exception raised
-        }
-    return jsonify(response)
-
-
-@blueprint.route('/longtask', methods=['GET', 'POST'])
-def longtask():
-
-    if request.method == "POST":
-
-        try:
-            task = long_task.apply_async()
-            app.logger.info(task.task_id)
-
-            return jsonify({}), 202, {
-                'Location': url_for(
-                    'home_blueprint.taskstatus',
-                    task_id=task.id
-                )
-            }
-
-        except AlreadyQueued:
-
-            app.logger.info("Job is locked.")
-            return jsonify({'message': 'Watering is already in progress'}), 409
-
-
-@blueprint.route('/sockets')
-def sockets():
-
-    return render_template('sockets.html')
-
-
-# event handler for connection where the client\
-# recieves a confirmation message upon the connection to the socket
-@socketio.on('connection', namespace='/test')
-def confirmation_message(message):
-
-    emit('confirmation', {
-        'connection_confirmation': message['connection_confirmation']
-    })
-
-
-# event handler for name submission by the client
-@socketio.on('submit_name', namespace='/test')
-def name_handler(message):
-
-    session_id = request.sid
-    roomstr = session_id
-    join_room(roomstr)
-    name = message['name']
-    message_to_client.delay(name, roomstr)
-
-
-@socketio.on('shorttask', namespace='/test')
-def shorttask():
-
-    short_task.apply_async()
-
-
-@blueprint.route("/profile", methods=["GET", "POST"])
-@login_required
-def profile():
-
-    timezones = pytz.common_timezones
-
-    if request.method == "POST":
-        current_user.first_name = request.form.get("first_name")
-        current_user.last_name = request.form.get("last_name")
-
-        db.session.commit()
-
-    return render_template(
-        "profile.html",
-        timezones=timezones,
-        segment=get_segment(request)
+        segment=active_icon
     )
 
 
 @blueprint.route("/settings", methods=["GET", "POST"])
 @login_required
 def settings():
+
+    active_icon = "settings"
 
     timezones = pytz.common_timezones
 
@@ -309,7 +163,7 @@ def settings():
     return render_template(
         "settings.html",
         timezones=timezones,
-        segment=get_segment(request)
+        segment=active_icon
     )
 
 
@@ -345,12 +199,6 @@ def profileimage():
             app.logger.info("Exception: ", str(e))
 
     return redirect(url_for("home_blueprint.settings"))
-
-
-@blueprint.route("/celery", methods=['GET', 'POST'])
-def celery():
-
-    return render_template("celery.html")
 
 
 # Login & Registration
@@ -419,15 +267,16 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        return render_template(
-            "register.html",
-            msg='User created please <a href="/login">login</a>',
-            success=True,
-            form=create_account_form,
-        )
+        return redirect(url_for("home_blueprint.login"))
 
     else:
         return render_template("register.html", form=create_account_form)
+
+
+@blueprint.route("/reset_password")
+def reset_password():
+
+    return redirect(url_for("home_blueprint.login"))
 
 
 @blueprint.route("/logout")
@@ -436,13 +285,82 @@ def logout():
     return redirect(url_for("home_blueprint.login"))
 
 
-@blueprint.route("/shutdown")
-def shutdown():
-    func = request.environ.get("werkzeug.server.shutdown")
-    if func is None:
-        raise RuntimeError("Not running with the Werkzeug Server")
-    func()
-    return "Server shutting down..."
+### TASK STUFF
+@blueprint.route('/status/<task_id>')
+def taskstatus(task_id):
+
+    task = long_task.AsyncResult(task_id)
+
+    if task.state == 'PENDING':
+
+        response = {
+            'state': task.state,
+            'current': 0,
+            'total': 1,
+            'status': 'Pending...'
+        }
+
+    elif task.state != 'FAILURE':
+
+        response = {
+            'state': task.state,
+            'current': task.info.get('current', 0),
+            'total': task.info.get('total', 1),
+            'status': task.info.get('status', '')
+        }
+
+        if 'result' in task.info:
+            response['result'] = task.info['result']
+    else:
+
+        response = {
+            'state': task.state,
+            'current': 1,
+            'total': 1,
+            'status': str(task.info),  # this is the exception raised
+        }
+    return jsonify(response)
+
+
+@blueprint.route('/longtask', methods=['GET', 'POST'])
+def longtask():
+
+    if request.method == "POST":
+
+        try:
+            task = long_task.apply_async()
+            app.logger.info(task.task_id)
+
+            return jsonify({}), 202, {
+                'Location': url_for(
+                    'home_blueprint.taskstatus',
+                    task_id=task.id
+                )
+            }
+
+        except AlreadyQueued:
+
+            app.logger.info("Job is locked.")
+            return jsonify({'message': 'Watering is already in progress'}), 409
+
+
+# event handler for connection where the client\
+# recieves a confirmation message upon the connection to the socket
+@socketio.on('connection', namespace='/test')
+def confirmation_message(message):
+
+    emit('confirmation', {
+        'connection_confirmation': message['connection_confirmation']
+    })
+
+
+@socketio.on('shorttask', namespace='/test')
+def shorttask():
+
+    short_task.apply_async()
+
+
+
 
 
 ## Errors

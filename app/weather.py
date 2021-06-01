@@ -111,6 +111,8 @@ def get_current_weather(city, country):
 
 def get_last_rain_date(location_latitude, location_longitude):
 
+    last_rain_date = None
+
     current_weather = get_current_weather(
         current_user.city,
         current_user.country
@@ -152,7 +154,7 @@ def get_last_rain_date(location_latitude, location_longitude):
 
     if last_rain_date is None:
 
-        return "currently unknown"
+        return "a while ago"
     else:
         return datetime.fromtimestamp(last_rain_date)
 
@@ -200,6 +202,7 @@ def get_next_water_date(location_latitude, location_longitude):
     if_rained_yesterday = False
     if_watered_today = False
     if_watered_yesterday = False
+    eod_skip = False
 
     # Check if user has actually set their preferred watering time
     if (current_user.watering_start_at == "" or current_user.watering_start_at is None):
@@ -235,11 +238,13 @@ def get_next_water_date(location_latitude, location_longitude):
         if last_water_date.date() == current_datetime.date():
 
             if_watered_today = True
+            eod_skip = True
 
         # boolean for whether last watered date was yesterday
         if last_water_date.date() == (current_datetime.date() - timedelta(days=1)):
 
             if_watered_yesterday = True
+            eod_skip = True
 
     # If user settings are impacted by rainfall:
     #   - store upcoming rain
@@ -266,7 +271,9 @@ def get_next_water_date(location_latitude, location_longitude):
 
             latest_rain_date = "unknown"
 
-        todays_weather = get_one_call_history(
+        # This will only check todays weather up to the current time,
+        # not until the end of the day.
+        todays_weather_so_far = get_one_call_history(
             0,
             current_user.latitude,
             current_user.longitude
@@ -278,29 +285,60 @@ def get_next_water_date(location_latitude, location_longitude):
             current_user.longitude
         )
 
-        for todays_weather_statuses in todays_weather:
+        for todays_weather_statuses in todays_weather_so_far:
+
+            app.logger.info(todays_weather_statuses)
 
             if todays_weather_statuses.status.lower() == "rain":
 
                 if_rained_today = True
+                eod_skip = True
                 break
+
+        if if_rained_today == False:
+
+            forecast_rain = get_next_rain_date(
+                current_user.latitude,
+                current_user.longitude
+            )
+
+            if forecast_rain.date() <= current_datetime.date():
+
+                if_rained_today = True
+                eod_skip = True
 
         for weather_statuses in yesterdays_weather:
 
             if weather_statuses.status.lower() == "rain":
 
                 if_rained_yesterday = True
+                eod_skip = True
                 break
 
     # If there's no historical watering and the user settings are not
     # impacted by rainfall, then water at next time occurance
     if (last_water_date == "never" and
-        ((current_user.skip_rained_today != "on" and
-            current_user.skip_rained_yesterday != "on") or latest_rain_date == "unknown")):
+        ((current_user.skip_rained_today != "on" and current_user.skip_rained_yesterday != "on") or latest_rain_date == "unknown")):
 
         return next_water_date
 
     else:
+
+        # Log a bunch of variables for debugging
+        app.logger.info("last water date: " + str(last_water_date))
+
+        app.logger.info("if skip rained today: " + str(current_user.skip_rained_today))
+        app.logger.info("if skip rained yesterday: " + str(current_user.skip_rained_yesterday))
+        app.logger.info("if skip watered today: " + str(current_user.skip_watered_today))
+        app.logger.info("if skip watered yesterday: " + str(current_user.skip_watered_yesterday))
+
+        app.logger.info("if watered today: " + str(if_watered_today))
+        app.logger.info("if watered yesterday: " + str(if_watered_yesterday))
+        app.logger.info("if rained today: " + str(if_rained_today))
+        app.logger.info("if rained yesterday: " + str(if_rained_yesterday))
+
+        app.logger.info("latest rain date: " + str(latest_rain_date))
+
 
         if current_user.skip_watered_today == "on" and if_watered_today is True:
             if next_water_date.date() <= current_datetime.date():
@@ -324,8 +362,8 @@ def get_next_water_date(location_latitude, location_longitude):
             if next_water_date.date() == (latest_rain_date + timedelta(days=1)).date():
                 next_water_date = next_water_date + timedelta(days=1)
 
-        if current_user.schedule_watering == "eod" and if_watered_yesterday is True:
-            if next_water_date.date() <= current_datetime.date():
-                next_water_date = next_water_date + timedelta(days=1)
+        if current_user.schedule_watering == "eod" and eod_skip is True:
+
+            next_water_date = next_water_date + timedelta(days=1)
 
         return next_water_date
