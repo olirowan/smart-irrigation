@@ -1,6 +1,8 @@
+from time import time
+import jwt
 from flask_login import UserMixin
 from sqlalchemy import Binary, Column, Integer, String
-from app import db, login_manager
+from app import app, db, login_manager
 from app.util import hash_pass
 
 
@@ -46,6 +48,23 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return str(self.username)
 
+
+    def get_reset_password_token(self, expires_in=43200):
+        return jwt.encode(
+            {'reset_password': self.id, 'exp': time() + expires_in},
+            app.config['SECRET_KEY'], algorithm='HS256')
+
+    @staticmethod
+    def verify_reset_password_token(token):
+        try:
+            id = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])['reset_password']
+        except Exception as e:
+            app.logger.info(e)
+            return
+        return User.query.get(id)
+
+    def set_password(self, password_value):
+        self.password = hash_pass(password_value)
 
 class Watering(db.Model, UserMixin):
 

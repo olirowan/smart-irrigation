@@ -29,6 +29,6 @@ class Config(object):
     UPLOADED_PHOTOS_DEST = os.path.join(basedir, "app/static/uploads")
     UPLOADED_FILES_ALLOW = ["jpg", "png"]
 
-    CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL") or'redis://192.168.10.11:6379/0'
+    CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL") or 'redis://192.168.10.11:6379/0'
     CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND") or 'redis://192.168.10.11:6379/0'
 

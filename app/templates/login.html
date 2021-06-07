@@ -21,7 +21,7 @@
                         <!-- <div class="signin-inner my-3 my-lg-0 bg-white shadow-soft border rounded border-light p-4 p-lg-5 w-100 fmxw-500"> -->
                         <div class="signin-inner card card-body my-3 my-lg-0 bg-white shadow-soft border rounded border-dark p-4 p-lg-5 w-100 fmxw-500">
 <!-- card h-100 card-body bg-white border-dark shadow-sm text-center p-0 -->
-                            <div class="text-center text-md-center mb-4 mt-md-0">
+                            <div class="text-center text-md-center mt-md-0">
             <div class="row d-flex">
                 <div class="col-4 px-0">
                     <img src="/static/assets/img/plantlogo.svg" alt="Smart Irrigation">    
@@ -30,12 +30,15 @@
                     <h1 class="text-white nav-title-text">Smart Irrigation</h1>
                 </div>
             </div>
-                                <div>
-                                    <p class="text-danger">
-                                    {% if msg %}
-                                        {{ msg | safe }}
-                                    {% endif %}                                     
-                                </p>    
+                                    {% with messages = get_flashed_messages(with_categories=true) %}
+                                        {% if messages %}
+                                            {% for category, message in messages %}
+                                            <p class="{{ category }}">
+                                                {{ message }}
+                                            </p>
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endwith %}
                             </div>
 
                             <form method="post" action="" class="mt-4">
@@ -66,11 +69,11 @@
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" value="" id="defaultCheck5">
                                             <label class="form-check-label small text-gold" for="defaultCheck5">
-                                              Remember me
+                                              Remember Me
                                             </label>
                                         </div>
                                         <div class="form-check">
-                                            <a href="{{ url_for('home_blueprint.reset_password') }}" class="small text-gold text-right">Reset Password</a>
+                                            <a href="{{ url_for('home_blueprint.reset_password_request') }}" class="small text-gold text-right">Reset Password</a>
                                         </div>
                                     </div>
 

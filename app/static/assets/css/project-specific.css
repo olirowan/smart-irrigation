@@ -14,7 +14,6 @@ body,html {
 
 .bg-primary {
   background-color: #20202cdf !important;
-  /* opacity: 90%; */
 }
 
 .border-black {
@@ -135,4 +134,9 @@ body,html {
 
 .form-check-input:checked {
   background-color: #e9b25d;
+}
+
+label {
+  font-weight: normal;
+  margin-bottom: 0rem;
 }

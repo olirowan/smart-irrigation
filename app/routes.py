@@ -9,7 +9,7 @@ import json
 import traceback
 import types
 from app import db, login_manager, photos, socketio
-from app.forms import LoginForm, CreateAccountForm
+from app.forms import LoginForm, CreateAccountForm, ResetPasswordRequestForm, ResetPasswordForm
 from app.models import User
 from app.util import verify_pass
 from app.tasks import long_task, short_task
@@ -204,6 +204,7 @@ def profileimage():
 # Login & Registration
 @blueprint.route("/login", methods=["GET", "POST"])
 def login():
+
     login_form = LoginForm(request.form)
     if "login" in request.form:
 
@@ -220,10 +221,9 @@ def login():
             login_user(user)
             return redirect(url_for("home_blueprint.dashboard"))
 
-        # Something (user or pass) is not ok
+        flash("Incorrect username or password.", category="text-danger")
         return render_template(
             "login.html",
-            msg="Wrong user or password",
             form=login_form
         )
 
@@ -235,113 +235,106 @@ def login():
 @blueprint.route("/register", methods=["GET", "POST"])
 def register():
 
-    login_form = LoginForm(request.form)
     create_account_form = CreateAccountForm(request.form)
     if "register" in request.form:
 
         username = request.form["username"]
         email = request.form["email"]
 
-        # Check usename exists
         user = User.query.filter_by(username=username).first()
         if user:
+            flash("This username cannot be used.", category="text-danger")
             return render_template(
                 "register.html",
-                msg="Username already registered",
                 success=False,
                 form=create_account_form,
             )
 
-        # Check email exists
         user = User.query.filter_by(email=email).first()
         if user:
+            flash("This email cannot be used.", category="text-danger")
             return render_template(
                 "register.html",
-                msg="Email already registered",
                 success=False,
                 form=create_account_form,
             )
 
-        # else we can create the user
         user = User(**request.form)
         db.session.add(user)
         db.session.commit()
 
+        flash("Registration complete.", category="text-white")
         return redirect(url_for("home_blueprint.login"))
 
     else:
         return render_template("register.html", form=create_account_form)
 
 
-@blueprint.route("/reset_password")
-def reset_password():
+@blueprint.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
 
-    return redirect(url_for("home_blueprint.login"))
+    if current_user.is_authenticated:
+        return redirect(url_for("home_blueprint.dashboard"))
+
+    form = ResetPasswordRequestForm()
+
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+
+        if user:
+
+            token = user.get_reset_password_token()
+            app.logger.info("Password reset token requested for: " + str(user.email))
+            app.logger.info(token)
+
+        flash("Reset instructions sent to email.", category="text-white")
+        return redirect(url_for("home_blueprint.login"))
+
+    return render_template('reset_password_request.html', form=form)
+
+
+@blueprint.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+
+    if current_user.is_authenticated:
+        return redirect(url_for("home_blueprint.dashboard"))
+
+    user = User.verify_reset_password_token(token)
+
+    app.logger.info(user)
+
+    if not user:
+        app.logger.info("not user")
+        return redirect(url_for("home_blueprint.dashboard"))
+
+    form = ResetPasswordForm()
+
+    app.logger.info(str(request.form))
+
+    if "reset_password" in request.form:
+
+        password = request.form["password"]
+        password_confirm = request.form["password_confirm"]
+
+        if password == password_confirm:
+
+            user.set_password(password)
+            db.session.commit()
+
+            flash('Your password has been reset.', category="text-white")
+            return redirect(url_for("home_blueprint.login"))
+
+        elif password != password_confirm:
+
+            flash("Passwords do not match.", category="text-danger")
+
+    return render_template('reset_password.html', form=form)
 
 
 @blueprint.route("/logout")
 def logout():
     logout_user()
     return redirect(url_for("home_blueprint.login"))
-
-
-### TASK STUFF
-@blueprint.route('/status/<task_id>')
-def taskstatus(task_id):
-
-    task = long_task.AsyncResult(task_id)
-
-    if task.state == 'PENDING':
-
-        response = {
-            'state': task.state,
-            'current': 0,
-            'total': 1,
-            'status': 'Pending...'
-        }
-
-    elif task.state != 'FAILURE':
-
-        response = {
-            'state': task.state,
-            'current': task.info.get('current', 0),
-            'total': task.info.get('total', 1),
-            'status': task.info.get('status', '')
-        }
-
-        if 'result' in task.info:
-            response['result'] = task.info['result']
-    else:
-
-        response = {
-            'state': task.state,
-            'current': 1,
-            'total': 1,
-            'status': str(task.info),  # this is the exception raised
-        }
-    return jsonify(response)
-
-
-@blueprint.route('/longtask', methods=['GET', 'POST'])
-def longtask():
-
-    if request.method == "POST":
-
-        try:
-            task = long_task.apply_async()
-            app.logger.info(task.task_id)
-
-            return jsonify({}), 202, {
-                'Location': url_for(
-                    'home_blueprint.taskstatus',
-                    task_id=task.id
-                )
-            }
-
-        except AlreadyQueued:
-
-            app.logger.info("Job is locked.")
-            return jsonify({'message': 'Watering is already in progress'}), 409
 
 
 # event handler for connection where the client\

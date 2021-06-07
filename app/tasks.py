@@ -5,31 +5,6 @@ from app import app, celery, db
 from app.models import Watering
 from flask_socketio import SocketIO
 
-
-@celery.task(
-    bind=True,
-    base=celery.QueueOnce,
-    once={'timeout': 25}
-)
-def long_task(self):
-
-    message = ''
-    total = random.randint(10, 50)
-    total = 25
-    for i in range(0, 10, 1):
-        if not message or i == 9:
-            message = 'Watering in progress...'
-
-        self.update_state(
-            state='PROGRESS',
-            meta={'current': i, 'total': total, 'status': message}
-        )
-
-        time.sleep(1)
-    return {'current': 100, 'total': 100, 'status': 'Task completed!',
-            'result': 42}
-
-
 @celery.task(
     bind=True,
     base=celery.QueueOnce,
