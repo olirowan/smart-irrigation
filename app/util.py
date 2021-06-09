@@ -1,7 +1,9 @@
-import hashlib, binascii, os
+import hashlib
+import binascii
+import os
 
 
-def hash_pass( password ):
+def hash_pass(password):
 
     salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
 

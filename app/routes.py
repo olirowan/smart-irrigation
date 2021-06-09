@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, request, flash, jsonify
+from flask import render_template, redirect, url_for, request, flash
 from flask_login import current_user, login_required, login_user, logout_user
 from app import blueprint, app
 from flask_socketio import emit
@@ -9,13 +9,15 @@ import json
 import traceback
 import types
 from app import db, login_manager, photos, socketio
-from app.forms import LoginForm, CreateAccountForm, ResetPasswordRequestForm, ResetPasswordForm
+from app.forms import LoginForm, CreateAccountForm
+from app.forms import ResetPasswordRequestForm, ResetPasswordForm
 from app.models import User
 from app.util import verify_pass
-from app.tasks import long_task, short_task
+from app.tasks import water_plants
 from pathlib import Path
-from celery_once import AlreadyQueued
-from app.weather import get_current_weather, owm_icon_mapping, get_city_country, get_last_rain_date, get_next_rain_date, get_last_water_date, get_next_water_date
+from app.weather import get_current_weather, owm_icon_mapping, get_city_country
+from app.weather import get_last_rain_date, get_next_rain_date
+from app.weather import get_last_water_date, get_next_water_date
 
 
 @blueprint.route("/index")
@@ -46,6 +48,7 @@ def dashboard():
         next_rain_date = "API Key Required"
         last_water_date = "N/A"
         next_water_date = "API Key Required"
+        last_water_duration = "0"
 
     else:
 
@@ -66,7 +69,9 @@ def dashboard():
             else:
                 prefix = "wi wi-night-"
 
-            weather_icon = prefix + owm_icon_mapping(current_weather.weather_code)
+            weather_icon = prefix + owm_icon_mapping(
+                current_weather.weather_code
+            )
 
             last_rain_date = get_last_rain_date(
                 current_user.latitude,
@@ -88,14 +93,15 @@ def dashboard():
             app.logger.info(traceback.format_exc())
             current_weather = types.SimpleNamespace()
             current_weather.detailed_status = "Invalid API Key"
-            current_date = datetime.datetime.now(pytz.timezone("Europe/London"))
+            current_date = datetime.datetime.now(
+                pytz.timezone("Europe/London")
+            )
             weather_icon = "fas fa-ban"
             last_rain_date = "Invalid API Key"
             next_rain_date = "Invalid API Key"
             last_water_date = "N/A"
             last_water_duration = "N/A"
             next_water_date = "Invalid API Key"
-
 
     return render_template(
         "dashboard.html",
@@ -167,31 +173,31 @@ def settings():
     )
 
 
-@blueprint.route("/profileimage", methods=['GET', 'POST'])
+@blueprint.route("/profileimage", methods=["GET", "POST"])
 @login_required
 def profileimage():
 
     app.logger.info(request.files)
 
-    if request.method == 'POST' and 'photo' in request.files:
+    if request.method == "POST" and "photo" in request.files:
 
         try:
 
-            photo_file = request.files['photo']
+            photo_file = request.files["photo"]
             photo_file_extension = Path(photo_file.filename).suffix
 
             photo_filename = str(hashlib.sha1(str(
-                current_user.email).encode('utf-8') + str(
-                current_user.id).encode('utf-8') + str(
-                datetime.datetime.now().timestamp()).encode('utf-8')
+                current_user.email).encode("utf-8") + str(
+                current_user.id).encode("utf-8") + str(
+                datetime.datetime.now().timestamp()).encode("utf-8")
                 ).hexdigest()) + photo_file_extension
 
-            photos.save(request.files['photo'], name=photo_filename)
+            photos.save(request.files["photo"], name=photo_filename)
 
             current_user.profileimage = photo_filename
             db.session.commit()
 
-            flash('Profile image updated.')
+            flash("Profile image updated.")
 
             return redirect(url_for("home_blueprint.settings"))
 
@@ -270,7 +276,7 @@ def register():
         return render_template("register.html", form=create_account_form)
 
 
-@blueprint.route('/reset_password_request', methods=['GET', 'POST'])
+@blueprint.route("/reset_password_request", methods=["GET", "POST"])
 def reset_password_request():
 
     if current_user.is_authenticated:
@@ -290,10 +296,10 @@ def reset_password_request():
         flash("Reset instructions sent to email.", category="text-white")
         return redirect(url_for("home_blueprint.login"))
 
-    return render_template('reset_password_request.html', form=form)
+    return render_template("reset_password_request.html", form=form)
 
 
-@blueprint.route('/reset_password/<token>', methods=['GET', 'POST'])
+@blueprint.route("/reset_password/<token>", methods=["GET", "POST"])
 def reset_password(token):
 
     if current_user.is_authenticated:
@@ -321,14 +327,14 @@ def reset_password(token):
             user.set_password(password)
             db.session.commit()
 
-            flash('Your password has been reset.', category="text-white")
+            flash("Your password has been reset.", category="text-white")
             return redirect(url_for("home_blueprint.login"))
 
         elif password != password_confirm:
 
             flash("Passwords do not match.", category="text-danger")
 
-    return render_template('reset_password.html', form=form)
+    return render_template("reset_password.html", form=form)
 
 
 @blueprint.route("/logout")
@@ -339,26 +345,44 @@ def logout():
 
 # event handler for connection where the client\
 # recieves a confirmation message upon the connection to the socket
-@socketio.on('connection', namespace='/test')
+@socketio.on("connection", namespace="/water")
 def confirmation_message(message):
 
-    emit('confirmation', {
-        'connection_confirmation': message['connection_confirmation']
+    emit("confirmation", {
+        "connection_confirmation": message["connection_confirmation"]
     })
 
 
-@socketio.on('shorttask', namespace='/test')
-def shorttask():
+@socketio.on("water_plants_socket", namespace="/water")
+def water_plants_socket(duration):
 
-    short_task.apply_async()
+    command = duration.get("duration")
+
+    if command == "cancel_duration":
+        app.logger.info("Some logic to cancel any watering")
+
+    elif command == "one_duration":
+        water_plants.delay(60, 1)
+
+    elif command == "five_duration":
+        water_plants.delay(300, 1)
+
+    elif command == "ten_duration":
+        water_plants.delay(600, 1)
+
+    elif command == "thirty_duration":
+        water_plants.delay(1800, 1)
+
+    elif command == "default_duration":
+
+        time_seconds = int(current_user.water_duration_minutes) * 60
+        water_plants.apply_async(time_seconds, 1)
+
+    else:
+        app.logger.info("wtf")
 
 
-
-
-
-## Errors
-
-
+# Errors
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     return render_template("page-403.html"), 403

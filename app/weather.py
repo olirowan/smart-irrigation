@@ -186,14 +186,20 @@ def get_next_rain_date(location_latitude, location_longitude):
 def get_last_water_date():
 
     last_water_date = Watering.query.order_by(
-        Watering.watered_at.desc()
+        Watering.water_start_time.desc()
     ).first()
 
     if last_water_date is None:
 
         return "never", "n/a"
     else:
-        return datetime.fromtimestamp(float(last_water_date.watered_at)), last_water_date.water_duration_minutes
+
+        last_water_as_date = datetime.fromisoformat(
+            last_water_date.water_start_time
+        )
+        last_water_duration_minutes = last_water_date.water_duration_minutes
+
+        return last_water_as_date, last_water_duration_minutes
 
 
 def get_next_water_date(location_latitude, location_longitude):
@@ -295,7 +301,7 @@ def get_next_water_date(location_latitude, location_longitude):
                 eod_skip = True
                 break
 
-        if if_rained_today == False:
+        if if_rained_today is False:
 
             forecast_rain = get_next_rain_date(
                 current_user.latitude,
@@ -351,14 +357,14 @@ def get_next_water_date(location_latitude, location_longitude):
         if current_user.skip_rained_today == "on" and if_rained_today is True:
             if next_water_date.date() <= current_datetime.date():
                 next_water_date = next_water_date + timedelta(days=1)
-            
+
             if next_water_date.date() == latest_rain_date.date():
                 next_water_date = next_water_date + timedelta(days=1)
 
         if current_user.skip_rained_yesterday == "on" and if_rained_yesterday is True:
             if next_water_date.date() <= current_datetime.date():
                 next_water_date = next_water_date + timedelta(days=1)
-            
+
             if next_water_date.date() == (latest_rain_date + timedelta(days=1)).date():
                 next_water_date = next_water_date + timedelta(days=1)
 

@@ -1,7 +1,7 @@
 from time import time
 import jwt
 from flask_login import UserMixin
-from sqlalchemy import Binary, Column, Integer, String
+from sqlalchemy import Binary, Column, Integer, String, DateTime
 from app import app, db, login_manager
 from app.util import hash_pass
 
@@ -48,7 +48,6 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return str(self.username)
 
-
     def get_reset_password_token(self, expires_in=43200):
         return jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
@@ -56,25 +55,36 @@ class User(db.Model, UserMixin):
 
     @staticmethod
     def verify_reset_password_token(token):
+
         try:
-            id = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])['reset_password']
+
+            id = jwt.decode(
+                token,
+                app.config['SECRET_KEY'],
+                algorithms=['HS256']
+            )['reset_password']
+
         except Exception as e:
+
             app.logger.info(e)
             return
+
         return User.query.get(id)
 
     def set_password(self, password_value):
         self.password = hash_pass(password_value)
+
 
 class Watering(db.Model, UserMixin):
 
     __tablename__ = "Watering"
 
     id = Column(Integer, primary_key=True)
-    water_duration_minutes = Column(String, default="60")
-    if_scheduled_water = Column(String, default="1")
-    if_cancelled = Column(String, default="0")
-    watered_at = Column(String)
+    water_start_time = Column(String)
+    water_end_time = Column(String)
+    water_duration_minutes = Column(String)
+    adhoc_request = Column(String, default="0")
+    status = Column(String)
 
 
 @login_manager.user_loader
@@ -84,6 +94,8 @@ def user_loader(id):
 
 @login_manager.request_loader
 def request_loader(request):
+
     username = request.form.get("username")
     user = User.query.filter_by(username=username).first()
+
     return user if user else None
