@@ -278,6 +278,7 @@
                         }, 2500);
 
                         $(document).trigger('ready')
+                        location.reload()
 
                     }
                 }
@@ -286,19 +287,6 @@
 
                     namespace = '/water';
                     var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
-
-                    socket.on('connect', function () {
-                        socket.emit('connection', { connection_confirmation: 'Socket: Connected' });
-
-                    });
-
-                    socket.on('confirmation', function (data) {
-                        var confir_str = data.connection_confirmation;
-                        connection_status = '<span class="icon w-20 icon-xs icon-success mr-1"><span class="fas fa-plug"></span></span>' + confir_str
-                        document.getElementById("socketStatusIcon").classList.remove('icon-danger');
-                        document.getElementById("socketStatusIcon").classList.add('icon-success');
-                        document.getElementById("socketStatusText").innerHTML = confir_str
-                    });
 
                     socket.on('short_response', function (reponse) {
 

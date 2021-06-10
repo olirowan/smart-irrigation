@@ -1,3 +1,4 @@
+import celery
 from flask import render_template, redirect, url_for, request, flash
 from flask_login import current_user, login_required, login_user, logout_user
 from app import blueprint, app
@@ -12,7 +13,7 @@ from app import db, login_manager, photos, socketio
 from app.forms import LoginForm, CreateAccountForm
 from app.forms import ResetPasswordRequestForm, ResetPasswordForm
 from app.models import User
-from app.util import verify_pass
+from app.util import verify_pass, get_celery_worker_status
 from app.tasks import water_plants
 from pathlib import Path
 from app.weather import get_current_weather, owm_icon_mapping, get_city_country
@@ -343,14 +344,16 @@ def logout():
     return redirect(url_for("home_blueprint.login"))
 
 
-# event handler for connection where the client\
-# recieves a confirmation message upon the connection to the socket
 @socketio.on("connection", namespace="/water")
 def confirmation_message(message):
 
-    emit("confirmation", {
-        "connection_confirmation": message["connection_confirmation"]
-    })
+    celery_worker_status = get_celery_worker_status()
+
+    if celery_worker_status["availability"] is not None:
+
+        emit("confirmation", {
+            "connection_confirmation": message["connection_confirmation"]
+        })
 
 
 @socketio.on("water_plants_socket", namespace="/water")
@@ -376,7 +379,7 @@ def water_plants_socket(duration):
     elif command == "default_duration":
 
         time_seconds = int(current_user.water_duration_minutes) * 60
-        water_plants.apply_async(time_seconds, 1)
+        water_plants.delay(time_seconds, 1)
 
     else:
         app.logger.info("wtf")

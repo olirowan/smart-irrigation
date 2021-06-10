@@ -161,6 +161,8 @@ def get_last_rain_date(location_latitude, location_longitude):
 
 def get_next_rain_date(location_latitude, location_longitude):
 
+    next_rain_date = None
+
     upcoming_weather = get_one_call_current(
         location_latitude,
         location_longitude
@@ -195,7 +197,7 @@ def get_last_water_date():
     else:
 
         last_water_as_date = datetime.fromisoformat(
-            last_water_date.water_start_time
+            str(last_water_date.water_start_time)
         )
         last_water_duration_minutes = last_water_date.water_duration_minutes
 
@@ -204,6 +206,7 @@ def get_last_water_date():
 
 def get_next_water_date(location_latitude, location_longitude):
 
+    latest_rain_date = None
     if_rained_today = False
     if_rained_yesterday = False
     if_watered_today = False
@@ -308,7 +311,12 @@ def get_next_water_date(location_latitude, location_longitude):
                 current_user.longitude
             )
 
-            if forecast_rain.date() <= current_datetime.date():
+            if forecast_rain == "currently unknown":
+
+                if_rained_today = False
+                eod_skip = True
+
+            elif forecast_rain.date() <= current_datetime.date():
 
                 if_rained_today = True
                 eod_skip = True

@@ -1,6 +1,28 @@
 import hashlib
 import binascii
 import os
+from app import celery
+
+
+def get_celery_worker_status():
+
+    inspection = celery.control.inspect()
+
+    availability = inspection.ping()
+    stats = inspection.stats()
+    registered_tasks = inspection.registered()
+    active_tasks = inspection.active()
+    scheduled_tasks = inspection.scheduled()
+
+    result = {
+        'availability': availability,
+        'stats': stats,
+        'registered_tasks': registered_tasks,
+        'active_tasks': active_tasks,
+        'scheduled_tasks': scheduled_tasks
+    }
+
+    return result
 
 
 def hash_pass(password):
