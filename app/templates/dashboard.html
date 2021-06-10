@@ -133,8 +133,8 @@
                                         </h4>
                                         {% else %}
                                         <h4 class="h6 text-white">
-                                            {{ moment(last_water_date, local=true).fromNow() }} ({{ last_water_duration
-                                            }}m)
+                                            {{ moment(last_water_date, local=true).fromNow() }} (for {{
+                                            last_water_duration }}m)
                                         </h4>
                                         <h4 class="h6 text-white">
                                             {{ last_water_date.strftime('%a %d %b, %H:%M') }}

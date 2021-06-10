@@ -11,25 +11,25 @@ class User(db.Model, UserMixin):
     __tablename__ = "User"
 
     id = Column(Integer, primary_key=True)
-    username = Column(String, unique=True)
-    email = Column(String, unique=True)
+    username = Column(String(32), unique=True)
+    email = Column(String(128), unique=True)
     password = Column(Binary)
-    first_name = Column(String)
-    last_name = Column(String)
-    city = Column(String)
-    country = Column(String)
-    timezone = Column(String)
-    latitude = Column(String)
-    longitude = Column(String)
-    owm_apikey = Column(String)
-    profileimage = Column(String, default="profile_template.png")
-    water_duration_minutes = Column(String, default="60")
-    schedule_watering = Column(String, default="eod")
-    skip_rained_today = Column(String, default="1")
-    skip_rained_yesterday = Column(String, default="1")
-    skip_watered_today = Column(String, default="1")
-    skip_watered_yesterday = Column(String, default="1")
-    watering_start_at = Column(String, default="1")
+    first_name = Column(String(32))
+    last_name = Column(String(32))
+    city = Column(String(32))
+    country = Column(String(32))
+    timezone = Column(String(128))
+    latitude = Column(String(32))
+    longitude = Column(String(32))
+    owm_apikey = Column(String(128))
+    profileimage = Column(String(256), default="profile_template.png")
+    water_duration_minutes = Column(String(32), default="60")
+    schedule_watering = Column(String(32), default="eod")
+    skip_rained_today = Column(String(32), default="1")
+    skip_rained_yesterday = Column(String(32), default="1")
+    skip_watered_today = Column(String(32), default="1")
+    skip_watered_yesterday = Column(String(32), default="1")
+    watering_start_at = Column(String(32), default="1")
 
     def __init__(self, **kwargs):
         for property, value in kwargs.items():
@@ -80,11 +80,11 @@ class Watering(db.Model, UserMixin):
     __tablename__ = "Watering"
 
     id = Column(Integer, primary_key=True)
-    water_start_time = Column(String)
-    water_end_time = Column(String)
-    water_duration_minutes = Column(String)
-    adhoc_request = Column(String, default="0")
-    status = Column(String)
+    water_start_time = Column(DateTime)
+    water_end_time = Column(DateTime)
+    water_duration_minutes = Column(String(32))
+    adhoc_request = Column(String(32), default="0")
+    status = Column(String(32))
 
 
 @login_manager.user_loader

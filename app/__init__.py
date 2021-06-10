@@ -13,6 +13,9 @@ from flask import Blueprint
 from celery import Celery
 from flask_socketio import SocketIO
 from celery_once import QueueOnce
+import pymysql
+pymysql.install_as_MySQLdb()
+
 
 # instantiate the app
 app = Flask(__name__)

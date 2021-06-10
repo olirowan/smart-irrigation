@@ -14,7 +14,7 @@ class Config(object):
     FLASK_ENV = os.environ.get("FLASK_ENV") or "development"
 
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL"
+        "SQLALCHEMY_DATABASE_URI"
     ) or "sqlite:///" + os.path.join(basedir, "project.db")
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
