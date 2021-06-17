@@ -17,7 +17,7 @@ def water_plants(duration_seconds, is_adhoc_request):
 
     start_time = datetime.now()
 
-    if app.config['DEMO_MODE'] is False:
+    if app.config['DEMO_MODE'] == "False":
 
         import RPi.GPIO as GPIO
 
@@ -53,7 +53,7 @@ def water_plants(duration_seconds, is_adhoc_request):
     db.session.add(water_event)
     db.session.commit()
 
-    if app.config['DEMO_MODE'] is False:
+    if app.config['DEMO_MODE'] == "False":
 
         GPIO.output(GPIO_PIN, False)
         GPIO.cleanup()
