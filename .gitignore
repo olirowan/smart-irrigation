@@ -9,6 +9,7 @@ home-off/
 base-off/
 uploads/
 uploads/*
+*.tgz
 
 # tests and coverage
 *.pytest_cache

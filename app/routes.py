@@ -147,7 +147,11 @@ def settings():
 
         current_user.first_name = request.form.get("first_name")
         current_user.last_name = request.form.get("last_name")
-        current_user.owm_apikey = request.form.get("apikey")
+
+        if "*" not in request.form.get("apikey"):
+            
+            current_user.owm_apikey = request.form.get("apikey")
+
         current_user.timezone = request.form.get("timezone")
         current_user.latitude = latitude_value
         current_user.longitude = longitude_value
@@ -167,10 +171,17 @@ def settings():
 
         return redirect(url_for("home_blueprint.settings"))
 
+    hidden_apikey = None
+
+    if current_user.owm_apikey is not None:
+        
+        hidden_apikey = (str(current_user.owm_apikey)[:12] + ("*" * 16))
+
     return render_template(
         "settings.html",
         timezones=timezones,
-        segment=active_icon
+        segment=active_icon,
+        hidden_apikey=hidden_apikey
     )
 
 

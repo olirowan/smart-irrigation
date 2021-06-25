@@ -92,7 +92,7 @@
                                 <div class="form-group">
                                     <label class="text-white" for="address">OpenWeatherMap API Key</label>
                                     <input class="form-control" id="apikey" name="apikey" type="text" {% if
-                                        current_user.owm_apikey %} value="{{ current_user.owm_apikey }}" {% endif %}
+                                        current_user.owm_apikey %} value="{{ hidden_apikey }}" {% endif %}
                                         placeholder="API Key">
                                 </div>
                             </div>
