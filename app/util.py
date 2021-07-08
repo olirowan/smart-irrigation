@@ -19,7 +19,10 @@ def telegram_notify(notification):
             telegram_chat_id,
             urllib.quote_plus(str(notification))
         )
-        app.logger.info(requests.get(telegram_api_endpoint, timeout=10))
+
+        app.logger.info(telegram_api_endpoint)
+        response = requests.get(telegram_api_endpoint, timeout=10)
+        app.logger.info(response.text)
     
     else:
 
