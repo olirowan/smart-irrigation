@@ -20,7 +20,7 @@ def telegram_notify(notification):
         telegram_api_endpoint = 'https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s' % (
             telegram_token,
             telegram_chat_id,
-            urllib.quote_plus(str(notification))
+            urllib.parse.quote_plus(str(notification))
         )
 
         app.logger.info(telegram_api_endpoint)
