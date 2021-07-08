@@ -26,7 +26,6 @@ def telegram_notify(notification):
         app.logger.info("Unable to post to telegram, no token present.")
 
 
-
 def get_celery_worker_status():
 
     inspection = celery.control.inspect()

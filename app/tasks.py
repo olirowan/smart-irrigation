@@ -65,7 +65,7 @@ def water_plants(duration_seconds, is_adhoc_request):
 
     start_time = datetime.datetime.now()
 
-    if app.config['DEMO_MODE'] == "False":
+    if app.config['DEMO_MODE'] is False:
 
         import RPi.GPIO as GPIO
 
@@ -103,7 +103,7 @@ def water_plants(duration_seconds, is_adhoc_request):
     db.session.add(water_event)
     db.session.commit()
 
-    if app.config['DEMO_MODE'] == "False":
+    if app.config['DEMO_MODE'] is False:
 
         GPIO.output(GPIO_PIN, False)
         telegram_notify("Scheduled watering has completed at: " + str(datetime.datetime.now()))
@@ -128,7 +128,7 @@ def cancel_water_plants():
 
     start_time = datetime.datetime.now()
 
-    if app.config['DEMO_MODE'] == "False":
+    if app.config['DEMO_MODE'] is False:
 
         import RPi.GPIO as GPIO
 
