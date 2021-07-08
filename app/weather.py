@@ -8,7 +8,11 @@ from flask_login import current_user
 from app import app
 
 
-def init_owm():
+def init_owm(scheduled_user=current_user):
+
+    if scheduled_user is not None:
+
+        current_user = scheduled_user
 
     owm = OWM(current_user.owm_apikey)
     mgr = owm.weather_manager()
@@ -26,9 +30,13 @@ def get_city_country(latitude, longitude):
     return location.raw
 
 
-def get_previous_day_timestamp(day_count):
+def get_previous_day_timestamp(day_count, scheduled_user=current_user):
 
-    current_time = convert_local_utc(datetime.now().timestamp())
+    if scheduled_user is not None:
+
+        current_user = scheduled_user
+
+    current_time = convert_local_utc(datetime.now().timestamp(), scheduled_user)
 
     return int(
         (datetime.fromtimestamp(
@@ -36,7 +44,11 @@ def get_previous_day_timestamp(day_count):
     )
 
 
-def convert_local_utc(timestamp):
+def convert_local_utc(timestamp, scheduled_user=current_user):
+
+    if scheduled_user is not None:
+
+        current_user = scheduled_user
 
     user_timezone = pytz.timezone(current_user.timezone)
 
@@ -49,7 +61,11 @@ def convert_local_utc(timestamp):
     return converted_timestamp.timestamp()
 
 
-def convert_utc_local(timestamp):
+def convert_utc_local(timestamp, scheduled_user=current_user):
+
+    if scheduled_user is not None:
+
+        current_user = scheduled_user
 
     user_timezone = pytz.timezone(current_user.timezone)
 
@@ -63,11 +79,15 @@ def convert_utc_local(timestamp):
     return converted_timestamp.timestamp()
 
 
-def get_one_call_history(day_count, location_latitude, location_longitude):
+def get_one_call_history(day_count, location_latitude, location_longitude, scheduled_user=current_user):
 
-    timestamp = get_previous_day_timestamp(day_count)
+    if scheduled_user is not None:
 
-    mgr = init_owm()
+        current_user = scheduled_user
+
+    timestamp = get_previous_day_timestamp(day_count, current_user)
+
+    mgr = init_owm(scheduled_user)
 
     weather = mgr.one_call_history(
         dt=timestamp,
@@ -88,9 +108,13 @@ def owm_icon_mapping(weather_code):
     return weather_icon
 
 
-def get_one_call_current(location_latitude, location_longitude):
+def get_one_call_current(location_latitude, location_longitude, scheduled_user=current_user):
 
-    mgr = init_owm()
+    if scheduled_user is not None:
+
+        current_user = scheduled_user
+
+    mgr = init_owm(current_user)
 
     weather = mgr.one_call(
         lat=float(location_latitude),
@@ -187,9 +211,10 @@ def get_next_rain_date(location_latitude, location_longitude):
 
 def get_last_water_date():
 
-    last_water_date = Watering.query.order_by(
-        Watering.water_start_time.desc()
-    ).first()
+    with app.app_context():
+        last_water_date = Watering.query.order_by(
+            Watering.water_start_time.desc()
+        ).first()
 
     if last_water_date is None:
 
@@ -204,7 +229,11 @@ def get_last_water_date():
         return last_water_as_date, last_water_duration_minutes
 
 
-def get_next_water_date(location_latitude, location_longitude):
+def get_next_water_date(location_latitude, location_longitude, scheduled_user=current_user):
+
+    if scheduled_user is not None:
+
+        current_user = scheduled_user
 
     latest_rain_date = None
     if_rained_today = False
@@ -219,7 +248,7 @@ def get_next_water_date(location_latitude, location_longitude):
         return "Configuration Not Set"
 
     # Get the current datetime to manipulate to match the user settings
-    current_utc_timestamp = convert_local_utc(datetime.now().timestamp())
+    current_utc_timestamp = convert_local_utc(datetime.now().timestamp(), scheduled_user)
     current_datetime = datetime.fromtimestamp(current_utc_timestamp)
 
     # Modify the datetimes hour/minute values to match user settings
@@ -264,7 +293,8 @@ def get_next_water_date(location_latitude, location_longitude):
 
         upcoming_weather = get_one_call_current(
             location_latitude,
-            location_longitude
+            location_longitude,
+            scheduled_user
         )
 
         for hourly_weather in reversed(upcoming_weather):
@@ -272,7 +302,7 @@ def get_next_water_date(location_latitude, location_longitude):
             if hourly_weather.status.lower() == "rain":
 
                 latest_rain_date = datetime.fromtimestamp(
-                    convert_utc_local(hourly_weather.ref_time)
+                    convert_utc_local(hourly_weather.ref_time, scheduled_user)
                 )
                 break
 
@@ -285,18 +315,18 @@ def get_next_water_date(location_latitude, location_longitude):
         todays_weather_so_far = get_one_call_history(
             0,
             current_user.latitude,
-            current_user.longitude
+            current_user.longitude,
+            scheduled_user
         )
 
         yesterdays_weather = get_one_call_history(
             1,
             current_user.latitude,
-            current_user.longitude
+            current_user.longitude,
+            scheduled_user
         )
 
         for todays_weather_statuses in todays_weather_so_far:
-
-            app.logger.info(todays_weather_statuses)
 
             if todays_weather_statuses.status.lower() == "rain":
 

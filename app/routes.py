@@ -1,7 +1,7 @@
 import celery
 from flask import render_template, redirect, url_for, request, flash
 from flask_login import current_user, login_required, login_user, logout_user
-from app import blueprint, app
+from app import app, blueprint
 from flask_socketio import emit
 import hashlib
 import datetime
@@ -14,7 +14,7 @@ from app.forms import LoginForm, CreateAccountForm
 from app.forms import ResetPasswordRequestForm, ResetPasswordForm
 from app.models import User
 from app.util import verify_pass, get_celery_worker_status
-from app.tasks import water_plants
+from app.tasks import water_plants, cancel_water_plants
 from pathlib import Path
 from app.weather import get_current_weather, owm_icon_mapping, get_city_country
 from app.weather import get_last_rain_date, get_next_rain_date
@@ -155,17 +155,13 @@ def settings():
         current_user.timezone = request.form.get("timezone")
         current_user.latitude = latitude_value
         current_user.longitude = longitude_value
-
         current_user.water_duration_minutes = request.form.get("water_duration_minutes")
         current_user.schedule_watering = request.form.get("schedule_watering")
         current_user.skip_rained_today = request.form.get("skip_rained_today")
         current_user.skip_rained_yesterday = request.form.get("skip_rained_yesterday")
         current_user.skip_watered_today = request.form.get("skip_watered_today")
         current_user.skip_watered_yesterday = request.form.get("skip_watered_yesterday")
-
         current_user.watering_start_at = request.form.get("water_start_time")
-        log_me = request.form.get("water_start_time")
-        app.logger.info(log_me)
 
         db.session.commit()
 
@@ -373,7 +369,7 @@ def water_plants_socket(duration):
     command = duration.get("duration")
 
     if command == "cancel_duration":
-        app.logger.info("Some logic to cancel any watering")
+        cancel_water_plants()
 
     elif command == "one_duration":
         water_plants.delay(60, 1)
@@ -393,7 +389,7 @@ def water_plants_socket(duration):
         water_plants.delay(time_seconds, 1)
 
     else:
-        app.logger.info("wtf")
+        app.logger.info("Unexpected command passed.")
 
 
 # Errors

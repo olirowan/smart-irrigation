@@ -38,3 +38,6 @@ class Config(object):
     CELERY_RESULT_BACKEND = os.environ.get(
         "CELERY_RESULT_BACKEND"
     ) or 'redis://192.168.10.11:6379/0'
+
+    TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
+    TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")

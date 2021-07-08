@@ -1,4 +1,5 @@
 import os
+import eventlet
 import logging
 from config import Config
 from flask_cors import CORS
@@ -13,6 +14,9 @@ from flask import Blueprint
 from celery import Celery
 from flask_socketio import SocketIO
 from celery_once import QueueOnce
+
+from apscheduler.schedulers.background import BackgroundScheduler
+
 import pymysql
 pymysql.install_as_MySQLdb()
 
@@ -32,7 +36,6 @@ configure_uploads(app, photos)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 moment = Moment(app)
-
 
 # Configure celery configuration
 def make_celery(app):
@@ -71,7 +74,10 @@ def make_celery(app):
 
 celery = make_celery(app)
 
-socketio = SocketIO(app, message_queue=app.config['CELERY_BROKER_URL'])
+
+
+task_schedule = BackgroundScheduler(daemon=True)
+task_schedule.start()
 
 # Start logging
 if not os.path.exists("logs"):
@@ -97,8 +103,14 @@ app.logger.info("STARTED project")
 app.logger.info("DEBUG = " + str(app.config["DEBUG"]))
 app.logger.info("DBMS  = " + str(app.config["SQLALCHEMY_DATABASE_URI"]))
 
+logging.getLogger('socketio').setLevel(logging.ERROR)
+logging.getLogger('engineio').setLevel(logging.ERROR)
+logging.getLogger('geventwebsocket.handler').setLevel(logging.ERROR)
+
 db.init_app(app)
 login_manager.init_app(app)
+
+socketio = SocketIO(app, logger=False, engineio_logger=False, message_queue=app.config['CELERY_BROKER_URL'])
 
 blueprint = Blueprint(
     "home_blueprint",
