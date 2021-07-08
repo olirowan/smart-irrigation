@@ -10,6 +10,9 @@ def telegram_notify(notification):
     telegram_token = str(app.config["TELEGRAM_TOKEN"])
     telegram_chat_id = str(app.config["TELEGRAM_CHAT_ID"])
 
+    # app.logger.info(telegram_token)
+    # app.logger.info(telegram_chat_id)
+
     if telegram_token is not None and telegram_chat_id is not None:
 
         app.logger.info("Posting message to telegram")
