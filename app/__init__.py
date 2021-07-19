@@ -51,7 +51,7 @@ def make_celery(app):
         'backend': 'celery_once.backends.Redis',
         'settings': {
             'url': app.config['CELERY_BROKER_URL'],
-            'default_timeout': 60 * 60
+            'default_timeout': 60 * 30
         }
     }
 

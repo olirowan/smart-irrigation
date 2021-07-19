@@ -369,7 +369,7 @@ def water_plants_socket(duration):
     command = duration.get("duration")
 
     if command == "cancel_duration":
-        cancel_water_plants()
+        cancel_water_plants.delay()
 
     elif command == "one_duration":
         water_plants.delay(60, 1)
