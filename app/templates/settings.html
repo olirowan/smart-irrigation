@@ -33,6 +33,7 @@
                             <div class="d-md-block">
                                 <form method=POST enctype=multipart/form-data
                                     action="{{ url_for('home_blueprint.profileimage') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                     <div class="row">
                                         <div class="col-9 mb-4 mr-0 pr-0">
                                             <div class="form-file mb-3">
@@ -62,6 +63,8 @@
                 <div class="card h-100 card-body bg-white border-dark shadow-sm">
                     <form action="{% block form_action %}{{ url_for('home_blueprint.settings') }}{% endblock %}"
                         method="post">
+
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
                         <h2 class="h5 my-4 text-white">Profile</h2>
                         <li role="separator" class="dropdown-divider mb-4 border-gold"></li>

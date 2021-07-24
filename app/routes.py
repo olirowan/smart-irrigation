@@ -11,7 +11,7 @@ import traceback
 import types
 from app import db, login_manager, photos, socketio
 from app.forms import LoginForm, CreateAccountForm
-from app.forms import ResetPasswordRequestForm, ResetPasswordForm
+from app.forms import ResetPasswordRequestForm, ResetPasswordForm, UploadProfileImage
 from app.models import User
 from app.util import verify_pass, get_celery_worker_status
 from app.tasks import water_plants, cancel_water_plants
@@ -122,6 +122,8 @@ def dashboard():
 @login_required
 def settings():
 
+    image_form = UploadProfileImage()
+
     active_icon = "settings"
 
     timezones = pytz.common_timezones
@@ -175,6 +177,7 @@ def settings():
 
     return render_template(
         "settings.html",
+        form = image_form,
         timezones=timezones,
         segment=active_icon,
         hidden_apikey=hidden_apikey

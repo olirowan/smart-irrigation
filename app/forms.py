@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField
 from wtforms import TextField, PasswordField
 from wtforms.validators import EqualTo, Email, DataRequired
 
@@ -21,3 +22,7 @@ class ResetPasswordRequestForm(FlaskForm):
 class ResetPasswordForm(FlaskForm):
     password = PasswordField("Password", id="pwd_create", validators=[DataRequired()])
     password_confirm = PasswordField("Repeat Password",  id="pwd_create_confirm", validators=[DataRequired(), EqualTo('password', message="Passwords must be the same.")])
+
+
+class UploadProfileImage(FlaskForm):
+    file = FileField()

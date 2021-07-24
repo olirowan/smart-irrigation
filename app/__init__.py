@@ -1,5 +1,8 @@
 import os
 import eventlet
+
+# eventlet.monkey_patch()
+
 import logging
 from config import Config
 from flask_cors import CORS
@@ -12,13 +15,14 @@ from flask_moment import Moment
 from flask_uploads import IMAGES, UploadSet, configure_uploads
 from flask import Blueprint
 from celery import Celery
+from flask_wtf.csrf import CSRFProtect
 from flask_socketio import SocketIO
 from celery_once import QueueOnce
-
 from apscheduler.schedulers.background import BackgroundScheduler
-
 import pymysql
 pymysql.install_as_MySQLdb()
+
+
 
 
 # instantiate the app
@@ -36,6 +40,8 @@ configure_uploads(app, photos)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 moment = Moment(app)
+
+csrf = CSRFProtect(app)
 
 # Configure celery configuration
 def make_celery(app):
