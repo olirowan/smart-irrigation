@@ -22,9 +22,6 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import pymysql
 pymysql.install_as_MySQLdb()
 
-
-
-
 # instantiate the app
 app = Flask(__name__)
 app.config.from_object(Config)
