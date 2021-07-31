@@ -61,6 +61,13 @@ def water_plants(duration_seconds, is_adhoc_request):
 
     app.logger.info("Watering for: " + str(duration_seconds) + " seconds.")
 
+    rain = u'\U00002614'
+    
+    if app.config['DEMO_MODE'] == "False":
+        app.logger.info("Production mode enabled")
+    else:
+        app.logger.info("Production mode disabled")
+
     socketio = SocketIO(message_queue=app.config['CELERY_BROKER_URL'])
 
     start_time = datetime.datetime.now()
@@ -70,7 +77,7 @@ def water_plants(duration_seconds, is_adhoc_request):
         import RPi.GPIO as GPIO
 
         telegram_notify(
-            "Scheduled watering has started at: " + 
+            rain + " - Scheduled watering has started at: " + 
             str(datetime.datetime.now().strftime("%d-%m-%Y %k:%m"))
         )
 
@@ -110,7 +117,7 @@ def water_plants(duration_seconds, is_adhoc_request):
 
         GPIO.output(GPIO_PIN, False)
         telegram_notify(
-            "Scheduled watering has completed at: " + 
+            rain + " - Scheduled watering has completed at: " + 
             str(datetime.datetime.now().strftime("%d-%m-%Y %k:%m"))
         )
         GPIO.cleanup()
