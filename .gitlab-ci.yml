@@ -1,5 +1,19 @@
 image: python:3.8-slim-buster
 
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  - python -V
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+
 stages:
   - build
   - bundle
@@ -13,4 +27,4 @@ bundle_application:
   stage: bundle
   script:
     - touch smart-irrigation.tar.gz && tar --exclude smart-irrigation.tar.gz --exclude-vcs -czvf smart-irrigation.tar.gz .
-    - echo "`ls -lh ./*.tar.gz"
+    - echo "`ls -lh ./*.tar.gz`"
