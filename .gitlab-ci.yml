@@ -2,14 +2,15 @@ image: python:3.8-slim-buster
 
 stages:
   - build
-  - deploy
+  - bundle
 
 install_dependencies:
   stage: build
   script:
     - pip install -r requirements.txt
 
-deploy_to_cloud:
-  stage: deploy
+bundle_application:
+  stage: bundle
   script:
-    - echo Deployed
+    - touch smart-irrigation.tar.gz && tar --exclude smart-irrigation.tar.gz --exclude-vcs -czvf smart-irrigation.tar.gz .
+    - echo "`ls -lh ./*.tar.gz"
