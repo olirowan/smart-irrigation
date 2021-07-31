@@ -1,4 +1,15 @@
 image: python:3.8-slim-buster
 
-before_script:
-  - pip install -r requirements.txt
+stages:
+  - build
+  - deploy
+
+install_dependencies:
+  stage: build
+  script:
+    - pip install -r requirements.txt
+
+deploy_to_cloud:
+  stage: deploy
+  script:
+    - echo Deployed
