@@ -1,4 +1,5 @@
 import os
+import redis
 from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -41,3 +42,8 @@ class Config(object):
 
     TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
     TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+
+    SESSION_TYPE = os.environ.get("SESSION_TYPE") or 'filesystem'
+    SESSION_PERMANENT = os.environ.get("SESSION_PERMANENT") or False
+    SESSION_USE_SIGNER = os.environ.get("SESSION_USE_SIGNER") or True
+    SESSION_REDIS = redis.from_url(os.environ.get("SESSION_REDIS"))

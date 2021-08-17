@@ -1,7 +1,6 @@
 import os
 import eventlet
-
-# eventlet.monkey_patch()
+eventlet.monkey_patch()
 
 import logging
 from config import Config
@@ -21,6 +20,8 @@ from celery_once import QueueOnce
 from apscheduler.schedulers.background import BackgroundScheduler
 import pymysql
 pymysql.install_as_MySQLdb()
+
+from flask_session import Session
 
 # instantiate the app
 app = Flask(__name__)
@@ -83,8 +84,8 @@ task_schedule = BackgroundScheduler(daemon=True)
 task_schedule.start()
 
 # Start logging
-if not os.path.exists("logs"):
-    os.mkdir("logs")
+# if not os.path.exists("logs"):
+#     os.mkdir("logs")
 
 file_handler = RotatingFileHandler(
     "logs/project.log",
@@ -113,7 +114,9 @@ logging.getLogger('geventwebsocket.handler').setLevel(logging.ERROR)
 db.init_app(app)
 login_manager.init_app(app)
 
-socketio = SocketIO(app, logger=False, engineio_logger=False, message_queue=app.config['CELERY_BROKER_URL'])
+server_session = Session(app)
+
+socketio = SocketIO(app, manage_session=False, logger=False, engineio_logger=False, message_queue=app.config['CELERY_BROKER_URL'])
 
 blueprint = Blueprint(
     "home_blueprint",

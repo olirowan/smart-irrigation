@@ -5,6 +5,7 @@ __pycache__/
 
 # Project specific
 logs/
+flask_session/
 home-off/
 base-off/
 uploads/
