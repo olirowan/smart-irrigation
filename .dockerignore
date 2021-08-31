@@ -8,6 +8,7 @@ Dockerfile
 /cache
 /store
 /flask_session
+/logs
 
 /node_modules
 
