@@ -78,8 +78,6 @@ def make_celery(app):
 
 celery = make_celery(app)
 
-
-
 task_schedule = BackgroundScheduler(daemon=True)
 task_schedule.start()
 
@@ -116,7 +114,13 @@ login_manager.init_app(app)
 
 server_session = Session(app)
 
-socketio = SocketIO(app, manage_session=False, logger=False, engineio_logger=False, message_queue=app.config['CELERY_BROKER_URL'])
+socketio = SocketIO(
+    app,
+    manage_session=False,
+    logger=False,
+    engineio_logger=False,
+    message_queue=app.config['CELERY_BROKER_URL']
+)
 
 blueprint = Blueprint(
     "home_blueprint",
