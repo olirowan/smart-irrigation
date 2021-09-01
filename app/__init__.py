@@ -1,7 +1,6 @@
 import os
-import eventlet
-eventlet.monkey_patch()
-
+from gevent import monkey
+monkey.patch_all()
 import logging
 from config import Config
 from flask_cors import CORS
@@ -17,11 +16,10 @@ from celery import Celery
 from flask_wtf.csrf import CSRFProtect
 from flask_socketio import SocketIO
 from celery_once import QueueOnce
+from flask_session import Session
 from apscheduler.schedulers.background import BackgroundScheduler
 import pymysql
 pymysql.install_as_MySQLdb()
-
-from flask_session import Session
 
 # instantiate the app
 app = Flask(__name__)
@@ -40,6 +38,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 moment = Moment(app)
 
 csrf = CSRFProtect(app)
+
 
 # Configure celery configuration
 def make_celery(app):
