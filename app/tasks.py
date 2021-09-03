@@ -13,13 +13,13 @@ from flask_socketio import SocketIO
 def check_water_routine():
 
     with app.app_context():
-     
+
         scheduled_user = db.session.query(User).one_or_none()
 
     if scheduled_user is not None:
 
         current_hour_minute = (
-            datetime.datetime.now() + 
+            datetime.datetime.now() +
             datetime.timedelta(minutes=1)
         ).strftime("%R")
 
@@ -31,7 +31,7 @@ def check_water_routine():
                 scheduled_user
             )
 
-            if (next_water_date.strftime("%Y-%m-%d %k:%m") == 
+            if (next_water_date.strftime("%Y-%m-%d %k:%m") ==
                 (datetime.datetime.now() -
                 datetime.timedelta(minutes=1))
                 .strftime("%Y-%m-%d %k:%m")):
@@ -47,7 +47,7 @@ def check_water_routine():
         else:
 
             app.logger.info("Nope, not this minute.")
-    
+
     else:
 
         app.logger.info("No user found.")
@@ -62,7 +62,7 @@ def water_plants(duration_seconds, is_adhoc_request):
     app.logger.info("Watering for: " + str(duration_seconds) + " seconds.")
 
     rain = u'\U00002614'
-    
+
     if app.config['DEMO_MODE'] == "False":
         app.logger.info("Production mode enabled")
     else:
@@ -77,7 +77,7 @@ def water_plants(duration_seconds, is_adhoc_request):
         import RPi.GPIO as GPIO
 
         telegram_notify(
-            rain + " - Scheduled watering has started at: " + 
+            rain + " - Scheduled watering has started at: " +
             str(datetime.datetime.now().strftime("%d-%m-%Y %k:%m"))
         )
 
@@ -117,7 +117,7 @@ def water_plants(duration_seconds, is_adhoc_request):
 
         GPIO.output(GPIO_PIN, False)
         telegram_notify(
-            rain + " - Scheduled watering has completed at: " + 
+            rain + " - Scheduled watering has completed at: " +
             str(datetime.datetime.now().strftime("%d-%m-%Y %k:%m"))
         )
         GPIO.cleanup()
@@ -146,7 +146,7 @@ def cancel_water_plants():
         import RPi.GPIO as GPIO
 
         telegram_notify(
-            "Cancelling any in progress watering at: " + 
+            "Cancelling any in progress watering at: " +
             str(datetime.datetime.now().strftime("%d-%m-%Y %k:%m"))
         )
 
