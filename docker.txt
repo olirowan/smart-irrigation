@@ -1,3 +1,50 @@
+docker system prune
+
+docker login registry.home.olirowan.com
+
+>Authenticating with existing credentials...
+>Login Succeeded
+
 docker build -t olirowan/smart-irrigation:v0.1 .
 
 docker run --name server1 -it -e SESSION_TYPE=redis -e SESSION_REDIS=redis://192.168.1.121:6379/1 -e CELERY_RESULT_BACKEND=redis://192.168.1.121:6379/0 -e CELERY_BROKER_URL=redis://192.168.1.121:6379/0 -e SQLALCHEMY_DATABASE_URI=mysql://smartirrigation:changeme@192.168.1.121:3306/smartirrigation -p 8000:80 -p 5000:5000 olirowan/smart-irrigation:v0.1
+
+docker images
+
+>REPOSITORY                  TAG       IMAGE ID       CREATED         SIZE
+>olirowan/smart-irrigation   v0.1      4e03ccb395ca   9 minutes ago   1.06GB
+
+
+docker tag olirowan/smart-irrigation:v0.1 registry.home.olirowan.com/library/olirowan/smart-irrigation:v0.1
+
+docker images
+
+>REPOSITORY                                                     TAG       IMAGE ID       CREATED          SIZE
+>olirowan/smart-irrigation                                      v0.1      4e03ccb395ca   21 minutes ago   1.06GB
+>registry.home.olirowan.com/library/olirowan/smart-irrigation   v0.1      4e03ccb395ca   21 minutes ago   1.06GB
+
+
+docker push registry.home.olirowan.com/library/olirowan/smart-irrigation:v0.1
+
+>The push refers to repository [registry.home.olirowan.com/library/olirowan/smart-irrigation]
+>279d59102981: Pushed
+>161ebb6745c2: Pushed
+>e5452e7ce3aa: Pushed
+>430bd01ee693: Pushed
+>6c3fabf0bfc6: Pushed
+>7bd032ea9afa: Pushed
+>524c92c3c873: Pushed
+>b45944ac2ae2: Pushed
+>07fb88ca3737: Pushed
+>ce836f76c583: Pushed
+>9374e27c518c: Pushed
+>9fb0785541dc: Pushed
+>534aca1b7ee9: Pushed
+>515418ad7cad: Pushed
+>138b36d5a43a: Pushed
+>ad83f0aa5c0a: Pushed
+>5a9a65095453: Pushed
+>4b0edb23340c: Pushed
+>afa3e488a0ee: Pushed
+>v0.1: digest: sha256:1752b4237ee89ff37dc7f31d6b2e8f01c2ca6b58e7da79b942e980d87dde97b5 size: 4304
+
