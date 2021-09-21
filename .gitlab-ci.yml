@@ -158,11 +158,12 @@ build-for-docker-hub-registry_new:
     name: push-to-docker-hub
 
 deploy:
-  image: python:latest
-  script:
-    - wget https://dl.minio.io/client/mc/release/linux-amd64/mc
-    - chmod +x mc
-    - mv mc /usr/sbin/
+  image:
+    name: minio/mc
+    entrypoint: [""]
+  stage: deploy
+  before_script:
     - mc alias set homelab-minio $MINIO_ENDPOINT $MINIO_ACCESS $MINIO_SECRET
+  script:
     - touch smart-irrigation.tgz && tar --exclude=smart-irrigation.tgz --exclude-vcs -czvf smart-irrigation.tgz .
     - mc cp smart-irrigation.tgz smart-irrigation-dev/
