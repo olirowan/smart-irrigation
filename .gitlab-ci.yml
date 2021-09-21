@@ -168,3 +168,4 @@ deploy:
   script:
     - touch smart-irrigation.tgz && tar --exclude=smart-irrigation.tgz --exclude-vcs -czvf smart-irrigation.tgz .
     - mc cp smart-irrigation.tgz homelab-minio/smart-irrigation-dev/
+    - echo `ls -lh *.tar.gz`
