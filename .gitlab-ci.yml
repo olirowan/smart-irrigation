@@ -164,6 +164,7 @@ deploy:
   stage: deploy
   before_script:
     - mc alias set homelab-minio $MINIO_ENDPOINT $MINIO_ACCESS $MINIO_SECRET
+    - microdnf install tar gzip
   script:
     - touch smart-irrigation.tgz && tar --exclude=smart-irrigation.tgz --exclude-vcs -czvf smart-irrigation.tgz .
     - mc cp smart-irrigation.tgz smart-irrigation-dev/
