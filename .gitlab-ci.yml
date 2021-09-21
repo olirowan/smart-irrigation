@@ -156,3 +156,13 @@ build-for-docker-hub-registry_new:
   # these variables with this scope would need to be created if you copy this project to another group or instance
   environment:
     name: push-to-docker-hub
+
+deploy:
+  image: python:latest
+  script:
+    - wget https://dl.minio.io/client/mc/release/linux-amd64/mc
+    - chmod +x mc
+    - mv mc /usr/sbin/
+    - mc alias set homelab-minio $MINIO_ENDPOINT $MINIO_ACCESS $MINIO_SECRET
+    - touch smart-irrigation.tgz && tar --exclude=smart-irrigation.tgz --exclude-vcs -czvf smart-irrigation.tgz .
+    - mc cp smart-irrigation.tgz smart-irrigation-dev/

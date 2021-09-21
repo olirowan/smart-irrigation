@@ -48,3 +48,6 @@ docker push registry.home.olirowan.com/library/olirowan/smart-irrigation:v0.1
 >afa3e488a0ee: Pushed
 >v0.1: digest: sha256:1752b4237ee89ff37dc7f31d6b2e8f01c2ca6b58e7da79b942e980d87dde97b5 size: 4304
 
+http://minio.home.olirowan.com/minio/
+
+helm install homelab-minio bitnami/minio --set persistence.storageClass=longhorn,ingress.enabled=true,disableWebUI=false,ingress.hostname=minio.home.olirowan.com --namespace homelab-minio
