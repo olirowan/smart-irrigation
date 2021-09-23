@@ -1,6 +1,6 @@
 import os
 from gevent import monkey
-monkey.patch_all()
+monkey.patch_all(aggressive=True)
 import logging
 from config import Config
 from flask_cors import CORS
@@ -133,4 +133,4 @@ module = import_module("app.routes")
 app.register_blueprint(module.blueprint)
 
 
-from app import routes, models, util
+from app import app

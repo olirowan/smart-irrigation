@@ -78,7 +78,7 @@ def water_plants(duration_seconds, is_adhoc_request):
 
         telegram_notify(
             rain + " - Scheduled watering has started at: " +
-            str(datetime.datetime.now().strftime("%d-%m-%Y %k:%m"))
+            str(datetime.datetime.now().strftime("%d-%m-%Y %H:%M"))
         )
 
         GPIO.setmode(GPIO.BCM)
@@ -118,7 +118,7 @@ def water_plants(duration_seconds, is_adhoc_request):
         GPIO.output(GPIO_PIN, False)
         telegram_notify(
             rain + " - Scheduled watering has completed at: " +
-            str(datetime.datetime.now().strftime("%d-%m-%Y %k:%m"))
+            str(datetime.datetime.now().strftime("%d-%m-%Y %H:%M"))
         )
         GPIO.cleanup()
 
@@ -147,7 +147,7 @@ def cancel_water_plants():
 
         telegram_notify(
             "Cancelling any in progress watering at: " +
-            str(datetime.datetime.now().strftime("%d-%m-%Y %k:%m"))
+            str(datetime.datetime.now().strftime("%d-%m-%Y %H:%M"))
         )
 
         GPIO.setmode(GPIO.BCM)
