@@ -257,8 +257,12 @@
                     socket.on('short_response', function (reponse) {
 
                         var myJSON = JSON.parse(JSON.stringify(reponse));
-                        update_line_progress(myJSON, bar);
 
+                        if(typeof bar != 'undefined') {
+
+                            update_line_progress(myJSON, bar);
+
+                        }
                     });
                 }
 
