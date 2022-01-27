@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: smart-irrigation
+  name: smart-irrigation-dev
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: smart-irrigation
+      app: smart-irrigation-dev
   template:
     metadata:
       labels:
-        app: smart-irrigation
+        app: smart-irrigation-dev
     spec:
       containers:
-        - name: smart-irrigation
+        - name: smart-irrigation-dev
           image: registry.home.olirowan.com/library/olirowan/smart-irrigation:v0.1
           env:
             - name: SESSION_TYPE
