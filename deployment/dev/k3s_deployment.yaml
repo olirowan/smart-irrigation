@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: smart-irrigation-dev
-          image: registry.home.olirowan.com/library/olirowan/smart-irrigation:v0.1
+          image: registry.home.olirowan.com/library/olirowan/smart-irrigation:docker-dev
           env:
             - name: SESSION_TYPE
               value: "redis"
