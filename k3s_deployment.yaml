@@ -19,10 +19,10 @@ spec:
             - name: SESSION_TYPE
               value: "redis"
             - name: SESSION_REDIS
-              value: "redis://192.168.1.121:6379/1"
+              value: "redis://192.168.1.112:6379/1"
             - name: CELERY_RESULT_BACKEND
-              value: "redis://192.168.1.121:6379/0"
+              value: "redis://192.168.1.112:6379/0"
             - name: CELERY_BROKER_URL
-              value: "redis://192.168.1.121:6379/0"
+              value: "redis://192.168.1.112:6379/0"
             - name: SQLALCHEMY_DATABASE_URI
-              value: "mysql://smartirrigation:changeme@192.168.1.121:3306/smartirrigation"
+              value: "mysql://smartirrigation:changeme@192.168.1.112:3306/smartirrigation"
