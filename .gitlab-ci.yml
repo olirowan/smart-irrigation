@@ -157,7 +157,7 @@ build-for-docker-hub-registry_new:
   environment:
     name: push-to-docker-hub
 
-deploy:
+create-archive-for-minio:
   image:
     name: minio/mc
     entrypoint: [""]
@@ -169,3 +169,23 @@ deploy:
     - touch smart-irrigation.tgz && tar --exclude=smart-irrigation.tgz --exclude-vcs -czvf smart-irrigation.tgz .
     - echo `ls -lh *.tgz`
     - mc cp smart-irrigation.tgz homelab-minio/smart-irrigation-dev/
+
+update-container-tag-dev:
+  image: alpine:3.8
+  stage: update
+  before_script:
+    - apk add --no-cache git curl bash
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - chmod 644 ~/.ssh/known_hosts
+    - echo "$SSH_KEY" > ~/.ssh/id.rsa
+    - chmod 600 > ~/.ssh/id.rsa
+    - git config --global user.email "$olirowan@olirowan.com"
+    - git config --global user.name "olirowan"
+  script:
+    - git clone ssh://git@192.168.1.121:8822/olirowan/homelab-iac.git
+    - sed -i "s/docker-dev/$CI_COMMIT_SHORT_SHA/g" homelab-iac/smart-irrigation/deployments/dev/k3s_deployment.yaml
+    - git add -A
+    - git commit -m "Updated container tag - $CI_COMMIT_SHORT_SHA"
+    - git push
+  
