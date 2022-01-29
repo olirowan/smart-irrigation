@@ -175,10 +175,9 @@ update-container-tag-dev:
   stage: .post
   before_script:
     - apk add --no-cache git curl bash openssh
+    - echo "$SSH_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - echo "$SSH_KEY" > ~/.ssh/id.rsa
-    - chmod 600 ~/.ssh/id.rsa
     - echo "Host *" > ~/.ssh/config
     - echo "    StrictHostKeyChecking no" >> ~/.ssh/config
     - git config --global user.email "$olirowan@olirowan.com"
