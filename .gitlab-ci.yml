@@ -178,7 +178,7 @@ update-container-tag-dev:
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - echo "$SSH_KEY" > ~/.ssh/id.rsa
-    - chmod 600 > ~/.ssh/id.rsa
+    - chmod 600 ~/.ssh/id.rsa
     - git config --global user.email "$olirowan@olirowan.com"
     - git config --global user.name "olirowan"
   script:
