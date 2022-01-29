@@ -179,6 +179,8 @@ update-container-tag-dev:
     - chmod 700 ~/.ssh
     - echo "$SSH_KEY" > ~/.ssh/id.rsa
     - chmod 600 ~/.ssh/id.rsa
+    - echo "Host *" > ~/.ssh/config
+    - echo "    StrictHostKeyChecking no" >> ~/.ssh/config
     - git config --global user.email "$olirowan@olirowan.com"
     - git config --global user.name "olirowan"
   script:
