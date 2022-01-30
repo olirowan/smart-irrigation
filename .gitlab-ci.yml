@@ -187,7 +187,7 @@ update-container-tag-dev:
     - mkdir -p /tmp/ && cd /tmp/
     - git clone ssh://git@192.168.1.121:8822/olirowan/homelab-iac.git
     - cd homelab-iac/
-    - cp smart-irrigation_deployment.yaml.tmpl smart-irrigation_deployment.yaml
+    - cp smart-irrigation/deployments/dev/smart-irrigation_deployment.yaml.tmpl smart-irrigation/deployments/dev/smart-irrigation_deployment.yaml
     - sed -i "s/GIT_SHA_VALUE/$CI_COMMIT_SHORT_SHA/g" smart-irrigation/deployments/dev/smart-irrigation_deployment.yaml
     - git add -A
     - git commit -m "Updated container tag - $CI_COMMIT_SHORT_SHA"
