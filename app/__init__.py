@@ -1,10 +1,10 @@
-import os
 from gevent import monkey
 monkey.patch_all(aggressive=True)
 import logging
 from config import Config
 from flask_cors import CORS
 from flask import Flask
+from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from logging.handlers import RotatingFileHandler
 from flask_login import LoginManager
@@ -38,6 +38,8 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 moment = Moment(app)
 
 csrf = CSRFProtect(app)
+
+bootstrap = Bootstrap5(app)
 
 
 # Configure celery configuration

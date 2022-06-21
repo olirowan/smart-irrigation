@@ -1,24 +1,20 @@
-import celery
-from flask import render_template, redirect, url_for, request, flash
-from flask_login import current_user, login_required, login_user, logout_user
-from app import app, blueprint
-from flask_socketio import emit
+import pytz
 import hashlib
 import datetime
-import pytz
-import json
-import traceback
-import types
-from app import db, login_manager, photos, socketio
-from app.forms import LoginForm, CreateAccountForm
-from app.forms import ResetPasswordRequestForm, ResetPasswordForm, UploadProfileImage
-from app.models import User
+from pathlib import Path
+
+from flask import render_template, redirect, url_for, request, flash
+from flask_login import current_user, login_required, login_user, logout_user
+from flask_socketio import emit
+
+from app import app, blueprint, db, login_manager, photos, socketio
+from app.dashboard import get_dashboard_data
+from app.forms import LoginForm, CreateAccountForm, ResetPasswordRequestForm
+from app.forms import ResetPasswordForm, UploadProfileImage
+from app.models import User, Settings
 from app.util import verify_pass, get_celery_worker_status
 from app.tasks import water_plants, cancel_water_plants
-from pathlib import Path
-from app.weather import get_current_weather, owm_icon_mapping, get_city_country
-from app.weather import get_last_rain_date, get_next_rain_date
-from app.weather import get_last_water_date, get_next_water_date
+from app.settings_profile import create_or_update_settings_profile
 
 
 @blueprint.route("/index")
@@ -39,90 +35,33 @@ def dashboard():
 
     active_icon = "dashboard"
 
-    if current_user.city is None or current_user.country is None or current_user.timezone is None:
-
-        current_weather = types.SimpleNamespace()
-        current_weather.detailed_status = "Location Setting Required"
-        current_date = datetime.datetime.now(pytz.timezone("Europe/London"))
-        weather_icon = "fas fa-ban"
-        last_rain_date = "API Key Required"
-        next_rain_date = "API Key Required"
-        last_water_date = "N/A"
-        next_water_date = "API Key Required"
-        last_water_duration = "0"
-
-    else:
-
-        try:
-
-            current_weather = get_current_weather(
-                current_user.city,
-                current_user.country
-            )
-
-            current_date = datetime.datetime.now(
-                pytz.timezone(current_user.timezone)
-            )
-
-            if current_date.hour > 6 and current_date.hour < 20:
-
-                prefix = "wi wi-day-"
-            else:
-                prefix = "wi wi-night-"
-
-            weather_icon = prefix + owm_icon_mapping(
-                current_weather.weather_code
-            )
-
-            last_rain_date = get_last_rain_date(
-                current_user.latitude,
-                current_user.longitude
-            )
-            next_rain_date = get_next_rain_date(
-                current_user.latitude,
-                current_user.longitude
-            )
-            last_water_date, last_water_duration = get_last_water_date()
-            next_water_date = get_next_water_date(
-                current_user.latitude,
-                current_user.longitude
-            )
-
-        except Exception as e:
-
-            app.logger.error(e)
-            app.logger.info(traceback.format_exc())
-            current_weather = types.SimpleNamespace()
-            current_weather.detailed_status = "Invalid API Key"
-            current_date = datetime.datetime.now(
-                pytz.timezone("Europe/London")
-            )
-            weather_icon = "fas fa-ban"
-            last_rain_date = "Invalid API Key"
-            next_rain_date = "Invalid API Key"
-            last_water_date = "N/A"
-            last_water_duration = "N/A"
-            next_water_date = "Invalid API Key"
+    dashboard_data = get_dashboard_data()
 
     return render_template(
         "dashboard.html",
-        weather=current_weather,
-        current_date=current_date,
-        weather_icon=weather_icon,
-        last_rain_date=last_rain_date,
-        next_rain_date=next_rain_date,
-        last_water_date=last_water_date,
-        last_water_duration=last_water_duration,
-        next_water_date=next_water_date,
+        dashboard_data=dashboard_data,
         segment=active_icon
     )
 
 
-@blueprint.route("/settings", methods=["GET", "POST"])
+@blueprint.route("/settings", methods=["GET"])
 @login_required
 def settings():
 
-    image_form = UploadProfileImage()
+    active_icon = "settings"
+
+    settings_profiles = Settings.query.filter().order_by(Settings.name)
+
+    return render_template(
+        "settings.html",
+        settings_profiles=settings_profiles,
+        segment=active_icon
+    )
+
+
+@blueprint.route("/add_settings_profile", methods=["GET", "POST"])
+@login_required
+def add_settings_profile():
 
     active_icon = "settings"
 
@@ -130,57 +69,115 @@ def settings():
 
     if request.method == "POST":
 
-        latitude_value = request.form.get("latitude")
-        longitude_value = request.form.get("longitude")
+        name = request.form.get("name")
 
-        if latitude_value is not None and longitude_value is not None and (latitude_value != current_user.latitude or longitude_value != current_user.longitude):
+        if Settings.query.filter_by(name=name).first() is not None:
 
-            location_info = json.dumps(get_city_country(latitude_value, longitude_value))
+            flash('Error: the name "' + name + '" is already in use.')
 
+            return render_template(
+                "settings_profile.html",
+                settings_profile=settings_profile,
+                timezones=timezones,
+                segment=active_icon,
+            )
 
-            if "city" in json.loads(location_info)["address"]:
-
-                current_user.city = json.loads(location_info)["address"]["city"]
-            else:
-
-                current_user.city = json.loads(location_info)["address"]["state"]
-
-            current_user.country = json.loads(location_info)["address"]["country"]
-
-        current_user.first_name = request.form.get("first_name")
-        current_user.last_name = request.form.get("last_name")
-
-        if "*" not in request.form.get("apikey"):
-            
-            current_user.owm_apikey = request.form.get("apikey")
-
-        current_user.timezone = request.form.get("timezone")
-        current_user.latitude = latitude_value
-        current_user.longitude = longitude_value
-        current_user.water_duration_minutes = request.form.get("water_duration_minutes")
-        current_user.schedule_watering = request.form.get("schedule_watering")
-        current_user.skip_rained_today = request.form.get("skip_rained_today")
-        current_user.skip_rained_yesterday = request.form.get("skip_rained_yesterday")
-        current_user.skip_watered_today = request.form.get("skip_watered_today")
-        current_user.skip_watered_yesterday = request.form.get("skip_watered_yesterday")
-        current_user.watering_start_at = request.form.get("water_start_time")
-
-        db.session.commit()
+        create_or_update_settings_profile(request, name)
 
         return redirect(url_for("home_blueprint.settings"))
 
-    hidden_apikey = None
+    return render_template(
+        "settings_profile.html",
+        timezones=timezones,
+        settings_profile="",
+        edit=False,
+        segment=active_icon,
+    )
 
-    if current_user.owm_apikey is not None:
-        
-        hidden_apikey = (str(current_user.owm_apikey)[:12] + ("*" * 16))
+
+@blueprint.route("/settings/<name>", methods=["GET", "POST"])
+@login_required
+def settings_profile(name):
+
+    active_icon = "settings"
+    timezones = pytz.common_timezones
+    hidden_apikey = None
+    hidden_telegram_token = None
+
+    settings_profile = Settings.query.filter_by(name=name).first_or_404()
+
+    if request.method == "POST":
+
+        new_name = request.form.get("name")
+
+        if name != new_name:
+
+            if Settings.query.filter_by(name=new_name).first() is not None:
+
+                flash('Error: the name "' + new_name + '" is already in use.')
+
+                return render_template(
+                    "settings_profile.html",
+                    settings_profile=settings_profile,
+                    timezones=timezones,
+                    segment=active_icon,
+                )
+
+        create_or_update_settings_profile(request, name)
+
+        return redirect(url_for("home_blueprint.settings"))
+
+    if settings_profile.owm_apikey is not None:
+
+        hidden_apikey = (
+            str(settings_profile.owm_apikey)[:12] + ("*" * 16)
+        )
+
+    if settings_profile.telegram_token is not None:
+
+        hidden_telegram_token = (
+            str(settings_profile.telegram_token)[:12] + ("*" * 16)
+        )
 
     return render_template(
-        "settings.html",
-        form = image_form,
+        "settings_profile.html",
         timezones=timezones,
         segment=active_icon,
-        hidden_apikey=hidden_apikey
+        settings_profile=settings_profile,
+        edit=True,
+        hidden_apikey=hidden_apikey,
+        hidden_telegram_token=hidden_telegram_token
+    )
+
+
+@blueprint.route("/profile", methods=["GET", "POST"])
+@login_required
+def profile():
+
+    image_form = UploadProfileImage()
+
+    active_icon = "profile"
+
+    timezones = pytz.common_timezones
+    settings_profiles = Settings.query.filter().order_by(Settings.name)
+
+    if request.method == "POST":
+
+        current_user.first_name = request.form.get("first_name")
+        current_user.last_name = request.form.get("last_name")
+        current_user.timezone = request.form.get("timezone")
+        current_user.primary_profile_id = request.form.get("primary_profile")
+
+        db.session.commit()
+
+        return redirect(url_for("home_blueprint.profile"))
+
+    return render_template(
+        "profile.html",
+        form=image_form,
+        timezones=timezones,
+        segment=active_icon,
+        settings_profiles=settings_profiles
     )
 
 
@@ -301,7 +298,9 @@ def reset_password_request():
         if user:
 
             token = user.get_reset_password_token()
-            app.logger.info("Password reset token requested for: " + str(user.email))
+            app.logger.info(
+                "Password reset token requested for: " + str(user.email)
+            )
             app.logger.info(token)
 
         flash("Reset instructions sent to email.", category="text-white")

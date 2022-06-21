@@ -12,217 +12,47 @@
 
     <div class="py-4">
     </div>
+
     <div class="main-container">
         <div class="row justify-content-center">
-            <div class="col-12 col-xl-10 py-2">
-                <div class="card h-100 card-body bg-white border-dark shadow-sm text-center p-0">
-                    <div class="profile-cover rounded-top">
-                    </div>
-                    <div class="card-body pb-5">
-                        <img src="{{ url_for('static', filename='uploads/'+current_user.profileimage) }}"
-                            class="user-avatar large-avatar rounded-circle mx-auto mt-n7 mb-4" alt="{{ current_user.first_name }}">
-                        <h4 class="h3 text-white">
-                            {{ current_user.first_name }} {{ current_user.last_name }}
-                        </h4>
-                        <h5 class="font-weight-normal text-white">
-                            {{ current_user.email }}
-                        </h5>
-                        <p class="mb-4 text-white">{{ current_user.city }}</p>
-
-                        <div class="d-flex justify-content-center ml-xl-3">
-                            <div class="d-md-block">
-                                <form method=POST enctype=multipart/form-data
-                                    action="{{ url_for('home_blueprint.profileimage') }}">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                    <div class="row">
-                                        <div class="col-9 mb-4 mr-0 pr-0">
-                                            <div class="form-file mb-3">
-                                                <input type="file" name=photo id="profilepic"
-                                                    class="form-control form-file-input">
-                                                <label class="form-file-label custom-file-label" for="customFile">
-                                                    <span
-                                                        class="form-file-button rounded-0 rounded-left btn-light">Browse</span>
-                                                    <span class="rounded-0 rounded-right text-truncate form-file-text"
-                                                        id="span-filename">Upload Profile Image...</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-3 mb-4 ml-0 pl-0">
-                                            <button class="btn btn-light" id="ProfilePictureSubmit"
-                                                type="submit">Update</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <div class="col-12 col-xl-10 py-2">
                 <div class="card h-100 card-body bg-white border-dark shadow-sm">
-                    <form action="{% block form_action %}{{ url_for('home_blueprint.settings') }}{% endblock %}"
-                        method="post">
 
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <h2 class="h5 my-4 text-white">Settings Profiles</h2>
+                    <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
+                    <div class="row justify-content-evenly text-center">
 
-                        <h2 class="h5 my-4 text-white">Profile</h2>
-                        <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div>
-                                    <label class="text-white" for="first_name">First Name</label>
-                                    <input class="form-control" id="first_name" name="first_name" type="text" {% if
-                                        current_user.first_name %} value="{{ current_user.first_name }}" {% endif %}
-                                        placeholder="Bernard">
+                        {% for settings_profile in settings_profiles %}
+
+                        <div class="col-5">
+                            <div class="card my-4 text-white">
+                                <div class="card-header mx-3">
+                                    <h3>{{ settings_profile.name }}</h3>
                                 </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div>
-                                    <label class="text-white" for="last_name">Last Name</label>
-                                    <input class="form-control" id="last_name" name="last_name" type="text" {% if
-                                        current_user.first_name %} value="{{ current_user.last_name }}" {% endif %}
-                                        placeholder="Black">
+                                <div class="card-body">
+                                    <p class="card-text">{{ settings_profile.description }}
+                                    </p>
+                                    <a href="{{ url_for('home_blueprint.settings_profile', name=settings_profile.name) }}"
+                                        class="btn btn-light">Edit Profile</a>
                                 </div>
                             </div>
                         </div>
 
-                        <h2 class="h5 my-4 text-white">Weather Updates</h2>
-                        <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
+                        {% endfor %}
 
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <div class="form-group">
-                                    <label class="text-white" for="address">OpenWeatherMap API Key</label>
-                                    <input class="form-control" id="apikey" name="apikey" type="text" {% if
-                                        current_user.owm_apikey %} value="{{ hidden_apikey }}" {% endif %}
-                                        placeholder="API Key">
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <label class="my-t mr-2 text-white" for="country">Timezone</label>
-                                <select class="form-select" id="timezone" name="timezone">
-                                    <option data-hidden="true">{% if current_user.timezone %}{{ current_user.timezone
-                                        }}{% endif %}</option>
-                                    {% for timezone in timezones %}
-                                    <option>{{ timezone }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
+                    </div>
 
-                        <div class="row">
-                            <div class="col-sm-6 mb-3">
-                                <div class="form-group">
-                                    <label class="mt-4 mr-2 text-white" for="latitude">Latitude</label>
-                                    <input class="form-control" id="latitude" name="latitude" type="text" {% if
-                                        current_user.latitude %} value="{{ current_user.latitude }}" {% endif %}
-                                        placeholder="51.507359">
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="form-group">
-                                    <label class="mt-4 mr-2 text-white" for="longitude">Longitude</label>
-                                    <input class="form-control" id="longitude" name="longitude" type="text" {% if
-                                        current_user.longitude %} value="{{ current_user.longitude }}" {% endif %}
-                                        placeholder="-0.136439">
-                                </div>
-                            </div>
-                        </div>
+                    <div class="mt-3">
+                        <a href="{{ url_for('home_blueprint.add_settings_profile') }}"><button class="btn btn-light">
+                            Add New Settings Profile</button></a>
+                    </div>
 
-                        <h2 class="h5 my-4 text-white">Watering Schedule</h2>
-                        <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
-                        <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <div class="form-group">
-                                    <label class="text-white" for="address">Watering Duration in Minutes:</label>
-                                    <input class="form-control" id="water_duration_minutes" name="water_duration_minutes" type="text" {% if
-                                        current_user.water_duration_minutes %} value="{{ current_user.water_duration_minutes }}" {% endif %}
-                                        placeholder="30">
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="form-group">
-                                    <label class="text-white" for="address">Start time:</label>
-                                    <input class="form-control" id="water_start_time" name="water_start_time" type="time" {% if
-                                        current_user.watering_start_at %} value="{{ current_user.watering_start_at }}" {% endif %}
-                                        placeholder="18">
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="text-white" for="schedule_watering">Schedule Watering:</label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="schedule_watering" id="schedule_watering" value="ed" {% if
-                                        current_user.schedule_watering  == "ed" %} checked {% endif %}>
-                                    <label class="form-check-label text-white" for="schedule_watering">
-                                      Every Day
-                                    </label>
-                                  </div>
-                                  <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="schedule_watering" id="schedule_watering" value="eod" {% if
-                                        current_user.schedule_watering  == "eod" %} checked {% endif %}>
-                                    <label class="form-check-label text-white" for="schedule_watering">
-                                      Every Other Day
-                                    </label>
-                                  </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="text-white" for="skip_watering_when">Skip Watering When:</label>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="skip_rained_today" name="skip_rained_today" {% if
-                                        current_user.skip_rained_today  == "on" %} checked {% endif %}>
-                                    <label class="form-check-label text-white" for="skip_rained_today">Rained Today</label>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="skip_rained_yesterday" name="skip_rained_yesterday" {% if
-                                        current_user.skip_rained_yesterday == "on" %} checked {% endif %}>
-                                    <label class="form-check-label text-white" for="skip_rained_yesterday">Rained Yesterday</label>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="skip_watered_today" name="skip_watered_today" {% if
-                                        current_user.skip_watered_today  == "on" %} checked {% endif %}>
-                                    <label class="form-check-label text-white" for="skip_watered_today">Watered Today</label>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="skip_watered_yesterday" name="skip_watered_yesterday" {% if
-                                        current_user.skip_watered_yesterday == "on" %} checked {% endif %}>
-                                    <label class="form-check-label text-white" for="skip_watered_yesterday">Watered Yesterday</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-3">
-                            <button type="submit" class="btn btn-light">{% block save_button %}
-                                Update{% endblock %}</button>
-                        </div>
-
-                    </form>
                 </div>
             </div>
         </div>
-    </div>
-    {% include 'includes/footer.html' %}
 
-    <script type="text/javascript">
-
-        document.getElementById("ProfilePictureSubmit").disabled = true;
-        var profilePic = document.getElementById('profilepic');
-
-        function changeLabelText() {
-
-            var profilePicValue = profilePic.value;
-            var fileNameStart = profilePicValue.lastIndexOf('\\');
-            profilePicValue = profilePicValue.substr(fileNameStart + 1);
-            var profilePicLabelText = document.querySelector('span[id="span-filename"]');
-            document.getElementById("ProfilePictureSubmit").disabled = false;
-            if (profilePicValue !== '') {
-                profilePicLabelText.textContent = profilePicValue;
-            }
-        }
-
-        profilePic.addEventListener('change', changeLabelText, false);
-
-    </script>
+        {% include 'includes/footer.html' %}
 
 </main>
 

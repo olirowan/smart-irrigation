@@ -5,13 +5,11 @@ import urllib
 import requests
 from app import app, celery
 
+
 def telegram_notify(notification):
 
     telegram_token = str(app.config["TELEGRAM_TOKEN"])
     telegram_chat_id = str(app.config["TELEGRAM_CHAT_ID"])
-
-    # app.logger.info(telegram_token)
-    # app.logger.info(telegram_chat_id)
 
     if telegram_token is not None and telegram_chat_id is not None:
 
@@ -23,13 +21,12 @@ def telegram_notify(notification):
             urllib.parse.quote_plus(str(notification))
         )
 
-        app.logger.info(telegram_api_endpoint)
         response = requests.get(telegram_api_endpoint, timeout=10)
         app.logger.info(response.text)
-    
+
     else:
 
-        app.logger.info("Unable to post to telegram, no token present.")
+        app.logger.warning("Failed to send telegram notification.")
 
 
 def get_celery_worker_status():

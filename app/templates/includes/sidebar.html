@@ -42,6 +42,13 @@
                 </a>
             </li>
 
+            <li class="nav-item  {% if 'profile' in segment %} active {% endif %}">
+                <a href="{{ url_for('home_blueprint.profile') }}" class="nav-link">
+                    <span class="sidebar-icon"><span class="fas fa-user"></span></span>
+                    <span>Profile</span>
+                </a>
+            </li>
+
             <li class="nav-item  {% if 'settings' in segment %} active {% endif %}">
                 <a href="{{ url_for('home_blueprint.settings') }}" class="nav-link">
                     <span class="sidebar-icon"><span class="fas fa-cog"></span></span>
@@ -52,19 +59,25 @@
             <li role="separator" class="dropdown-divider mt-4 mb-3 border-black"></li>
 
             <li class="nav-item  {% if 'hardware' in segment %} active {% endif %}">
-                <a href="{{ url_for('home_blueprint.settings') }}" class="nav-link">
+                <a target="_blank" href="https://blog.olirowan.com/raspberry-pi-home-irrigation-part-1-overview/" class="nav-link">
+                    <span class="sidebar-icon"><span class="fas fa-seedling"></span></span>
+                    <span>Overview</span>
+                </a>
+            </li>
+            <li class="nav-item  {% if 'hardware' in segment %} active {% endif %}">
+                <a target="_blank" href="https://blog.olirowan.com/raspberry-pi-home-irrigation-part-2-hardware/" class="nav-link">
                     <span class="sidebar-icon"><span class="fas fa-microchip"></span></span>
                     <span>Hardware</span>
                 </a>
             </li>
             <li class="nav-item  {% if 'application' in segment %} active {% endif %}">
-                <a href="{{ url_for('home_blueprint.settings') }}" class="nav-link">
+                <a target="_blank" href="https://blog.olirowan.com/raspberry-pi-home-irrigation-part-3-application/" class="nav-link">
                     <span class="sidebar-icon"><span class="fas fa-code"></span></span>
                     <span>Application</span>
                 </a>
             </li>
             <li class="nav-item  {% if 'infrastructure' in segment %} active {% endif %}">
-                <a href="{{ url_for('home_blueprint.settings') }}" class="nav-link">
+                <a target="_blank" href="https://blog.olirowan.com/raspberry-pi-home-irrigation-part-4-infrastructure/" class="nav-link">
                     <span class="sidebar-icon"><span class="fas fa-server"></span></span>
                     <span>Infrastructure</span>
                 </a>

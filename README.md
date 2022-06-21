@@ -2,4 +2,11 @@
 
 Source code for the smart-irrigation flask project that waters plants.
 
-https://logodust.com/?d
+ - Running locally:
+
+```bash
+
+. ./set_env.sh
+source venv/bin/activate
+flask run 
+```

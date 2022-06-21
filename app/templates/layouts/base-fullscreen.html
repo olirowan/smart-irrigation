@@ -1,58 +1,50 @@
-<!--
-
-=========================================================
-* Volt - Bootstrap 5 Admin Dashboard
-=========================================================
-
-* Product Page: https://themesberg.com/product/admin-dashboard/volt-bootstrap-5-dashboard
-* Copyright 2020 Themesberg (https://www.themesberg.com)
-
-* Designed and coded by https://themesberg.com
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. Please contact us to request a removal.
-
--->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
-<head> 
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <head>
 
-    <title>
-        Smart Irrigation
-    </title>
+        {% block head %}
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="title" content="Smart Irrigation">
+        <meta name="author" content="olirowan">
+        <meta name="description" content="An overkill solution from not wanting to water the plants manually.">
+        <meta name="keywords" content="flask, python, socketio, owm, kubernetes, rpi, raspberry pi, solenoid valve, smart irrigation, irrigation, water plants, devops" />
+        <link rel="canonical" href="https://olirowan.xyz">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="title" content="Smart Irrigation">
-    <meta name="author" content="olirowan">
-    <meta name="description" content="An overkill solution to not wanting to water the plants manually.">
-    <meta name="keywords" content="flask, python, owm, kubernetes, rpi, raspberry pi, solenoid valve, smart irrigation, irrigation, water plants, devops" />
-    <link rel="canonical" href="https://olirowan.xyz">
+        <!-- Fontawesome -->
+        <link type="text/css" href="/static/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 
-    <!-- Fontawesome -->
-    <link type="text/css" href="/static/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+        <!-- Volt CSS -->
+        <link type="text/css" href="/static/assets/css/volt.css" rel="stylesheet">
+        <link type="text/css" href="/static/assets/css/project-specific.css" rel="stylesheet">
 
-    <!-- Volt CSS -->
-    <link type="text/css" href="/static/assets/css/volt.css" rel="stylesheet">
-    <link type="text/css" href="/static/assets/css/project-specific.css" rel="stylesheet">
+        <!-- Favicon Updated -->
+        <link rel="icon" type="image/svg+xml" href="/static/assets/img/plantlogo.svg">
 
-    <!-- Favicon Updated -->
-    <link rel="icon" type="image/svg+xml" href="/static/assets/img/plantlogo.svg">
+        {% block styles %}
+            <!-- Bootstrap CSS -->
+            {{ bootstrap.load_css() }}
+        {% endblock %}
 
-    <!-- Specific Page CSS goes HERE  -->
-    {% block stylesheets %}{% endblock stylesheets %}
+        <title>Smart Irrigation</title>
+        {% endblock %}
+        <link type="text/css" href="/static/assets/css/volt.css" rel="stylesheet">
+        <link type="text/css" href="/static/assets/css/project-specific.css" rel="stylesheet">
 
-</head> 
-<body>
-           
-    {% block content %}{% endblock content %}
+    </head>
 
-    {% include 'includes/scripts.html' %}    
-    
-    <!-- Specific Page JS goes HERE  -->
-    {% block javascripts %}{% endblock javascripts %}
+    <body>
 
-</body>
+        <!-- Your page content -->
+        {% block content %}{% endblock %}
+
+        {% block scripts %}
+            <!-- Optional JavaScript -->
+            {% include 'includes/scripts.html' %}
+            {{ bootstrap.load_js() }}
+        {% endblock %}
+
+    </body>
 </html>
