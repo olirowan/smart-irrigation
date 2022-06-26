@@ -172,7 +172,10 @@ def get_next_rain_date(settings_profile_data):
         if hourly_weather.status.lower() == "rain":
             if current_time < hourly_weather.ref_time:
 
-                next_rain_date = convert_local_utc(hourly_weather.ref_time)
+                next_rain_date = convert_local_utc(
+                    hourly_weather.ref_time,
+                    settings_profile_data
+                )
 
                 break
 

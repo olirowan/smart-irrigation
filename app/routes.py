@@ -12,9 +12,9 @@ from app.dashboard import get_dashboard_data
 from app.forms import LoginForm, CreateAccountForm, ResetPasswordRequestForm
 from app.forms import ResetPasswordForm, UploadProfileImage
 from app.models import User, Settings
-from app.util import verify_pass, get_celery_worker_status
-from app.tasks import water_plants, cancel_water_plants
 from app.settings_profile import create_or_update_settings_profile
+from app.util import verify_pass, get_celery_worker_status
+from app.watering import water_plants, cancel_water_plants
 
 
 @blueprint.route("/index")

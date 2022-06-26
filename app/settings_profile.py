@@ -41,8 +41,11 @@ def create_or_update_settings_profile(request, name):
         settings_profile.name = request.form.get("name")
         settings_profile.description = request.form.get("description")
 
-        settings_profile.watering_start_at = request.form.get("water_start_time")
-        settings_profile.water_duration_minutes = request.form.get("water_duration_minutes")
+        settings_profile.watering_start_at = \
+            request.form.get("water_start_time")
+
+        settings_profile.water_duration_minutes = \
+            request.form.get("water_duration_minutes")
 
         settings_profile.latitude = str(latitude)
         settings_profile.longitude = str(longitude)
@@ -54,17 +57,27 @@ def create_or_update_settings_profile(request, name):
         settings_profile.country = str(country)
         settings_profile.timezone = request.form.get("timezone")
 
-        settings_profile.schedule_watering = request.form.get("schedule_watering")
+        settings_profile.schedule_watering = \
+            request.form.get("schedule_watering")
 
-        settings_profile.skip_rained_today = request.form.get("skip_rained_today")
-        settings_profile.skip_rained_yesterday = request.form.get("skip_rained_yesterday")
-        settings_profile.skip_watered_today = request.form.get("skip_watered_today")
-        settings_profile.skip_watered_yesterday = request.form.get("skip_watered_yesterday")
+        settings_profile.skip_rained_today = \
+            request.form.get("skip_rained_today")
+
+        settings_profile.skip_rained_yesterday = \
+            request.form.get("skip_rained_yesterday")
+
+        settings_profile.skip_watered_today = \
+            request.form.get("skip_watered_today")
+
+        settings_profile.skip_watered_yesterday = \
+            request.form.get("skip_watered_yesterday")
 
         if not ("*" * 16) in request.form.get("telegram_token"):
-            settings_profile.telegram_token = request.form.get("telegram_token")
+            settings_profile.telegram_token = \
+                request.form.get("telegram_token")
 
-        settings_profile.telegram_chat_id = request.form.get("telegram_chat_id")
+        settings_profile.telegram_chat_id = \
+            request.form.get("telegram_chat_id")
 
         db.session.commit()
 
