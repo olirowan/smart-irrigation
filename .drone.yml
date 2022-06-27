@@ -21,7 +21,7 @@ steps:
     image: alpine
 
     commands:
-      - wget https://dl.min.io/client/mc/release/linux-amd64/mc
+      - wget http://192.168.1.112:8000/mc
       - chmod 755 ./mc
       - ./mc alias set homelab-minio http://minio.home.olirowan.com $MINIO_CLIENT $MINIO_SECRET
       - touch smart-irrigation.tgz && tar --exclude=smart-irrigation.tgz --exclude=.git -czvf smart-irrigation.tgz .
