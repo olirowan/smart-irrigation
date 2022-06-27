@@ -163,10 +163,14 @@ def profile():
 
     if request.method == "POST":
 
+        settings_profile_data = Settings.query.filter_by(
+            name=request.form.get("primary_profile")
+        ).first()
+
         current_user.first_name = request.form.get("first_name")
         current_user.last_name = request.form.get("last_name")
         current_user.timezone = request.form.get("timezone")
-        current_user.primary_profile_id = request.form.get("primary_profile")
+        current_user.primary_profile_id = settings_profile_data.id
 
         db.session.commit()
 

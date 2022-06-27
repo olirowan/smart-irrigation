@@ -18,7 +18,7 @@ def get_dashboard_data():
         # users preferred dashboard.
 
         settings_profile_data = Settings.query.filter_by(
-            name=current_user.primary_profile_id
+            id=current_user.primary_profile_id
         ).first()
 
     elif Settings.query.first() is not None:
