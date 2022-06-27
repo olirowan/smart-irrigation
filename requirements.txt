@@ -6,6 +6,7 @@ bidict==0.21.2
 billiard==3.6.3.0
 black==20.8b1
 blinker==1.4
+Bootstrap-Flask==2.0.2
 cachelib==0.2.0
 celery==4.4.7
 celery-once==3.0.1

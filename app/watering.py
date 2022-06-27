@@ -132,14 +132,15 @@ def water_plants(settings_profile_data, duration_seconds, is_adhoc_request):
 
         time.sleep(1)
 
-    water_event = Watering()
-    water_event.water_start_time = start_time
-    water_event.water_end_time = datetime.datetime.now()
-    water_event.adhoc_request = is_adhoc_request
-    water_event.status = "completed"
-    water_event.water_duration_minutes = int((duration_seconds / 60))
+    new_water_event = Watering(
+        water_start_time=start_time,
+        water_end_time=datetime.datetime.now(),
+        adhoc_request=is_adhoc_request,
+        status="completed",
+        water_duration_minutes=int((duration_seconds / 60))
+    )
 
-    db.session.add(water_event)
+    db.session.add(new_water_event)
     db.session.commit()
 
     if app.config['DEMO_MODE'] == "False":
