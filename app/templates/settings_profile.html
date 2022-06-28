@@ -102,6 +102,7 @@
                                     <option data-hidden="true">{% if settings_profile.timezone %}{{
                                         settings_profile.timezone
                                         }}{% endif %}</option>
+                                    <option disabled>──────────</option>
                                     {% for timezone in timezones %}
                                     <option>{{ timezone }}</option>
                                     {% endfor %}

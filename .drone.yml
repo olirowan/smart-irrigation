@@ -54,3 +54,32 @@ steps:
       - git add .
       - git commit -m 'drone - updated container tag - ${DRONE_COMMIT_SHA:0:8}'
       - git push http://$DRONE_USER:$DRONE_PASS@gitea.home.olirowan.com/olirowan/homelab-iac.git --all
+    when:
+      branch:
+      - develop
+
+
+  - name: update-container-tag-demo
+    image: alpine:3.8
+
+    environment:
+      DRONE_USER:
+        from_secret: drone_user
+      DRONE_PASS:
+        from_secret: drone_pass
+
+    commands:
+      - apk add --no-cache git curl bash openssh
+      - git config --global user.email "drone@home.olirowan.com"
+      - git config --global user.name "drone"
+
+      - mkdir -p /tmp/ && cd /tmp/
+      - git clone http://gitea.home.olirowan.com/olirowan/homelab-iac.git
+      - cd homelab-iac/
+      - sed -i 's/smart-irrigation:........$/smart-irrigation:${DRONE_COMMIT_SHA:0:8}/g' smart-irrigation/deployments/demo/smart-irrigation_deployment.yaml
+      - git add .
+      - git commit -m 'drone - updated container tag - ${DRONE_COMMIT_SHA:0:8}'
+      - git push http://$DRONE_USER:$DRONE_PASS@gitea.home.olirowan.com/olirowan/homelab-iac.git --all
+    when:
+      branch:
+      - master

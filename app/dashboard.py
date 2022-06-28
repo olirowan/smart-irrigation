@@ -69,57 +69,78 @@ def generate_dashboard_data(settings_profile_data_raw):
             getattr(settings_profile_data_raw, column.name)
         )
 
-    current_weather = get_current_weather(
-        settings_profile_data
-    )
+    try:
 
-    weather_detail = current_weather.detailed_status
+        current_weather = get_current_weather(
+            settings_profile_data
+        )
 
-    current_date = datetime.datetime.now(
-        pytz.timezone(settings_profile_data["timezone"])
-    )
+        weather_detail = current_weather.detailed_status
 
-    if current_date.hour >= 6 and current_date.hour <= 20:
+        current_date = datetime.datetime.now(
+            pytz.timezone(settings_profile_data["timezone"])
+        )
 
-        prefix = "wi wi-day-"
-    else:
-        prefix = "wi wi-night-"
+        if current_date.hour >= 6 and current_date.hour <= 20:
 
-    weather_icon = prefix + owm_icon_mapping(
-        current_weather.weather_code
-    )
+            prefix = "wi wi-day-"
+        else:
+            prefix = "wi wi-night-"
 
-    if weather_icon == "wi wi-night-sunny":
-        weather_icon = "wi wi-night-clear"
+        weather_icon = prefix + owm_icon_mapping(
+            current_weather.weather_code
+        )
 
-    last_rain_date = get_last_rain_date(
-        settings_profile_data
-    )
+        if weather_icon == "wi wi-night-sunny":
+            weather_icon = "wi wi-night-clear"
 
-    next_rain_date = get_next_rain_date(
-        settings_profile_data
-    )
+        last_rain_date = get_last_rain_date(
+            settings_profile_data
+        )
 
-    last_water_date, last_water_duration = get_last_water_date()
+        next_rain_date = get_next_rain_date(
+            settings_profile_data
+        )
 
-    next_water_date = get_next_water_date(
-        settings_profile_data
-    )
+        last_water_date, last_water_duration = get_last_water_date()
 
-    dashboard_data.update(
-        {
-            "weather_detail": weather_detail,
-            "weather_icon": weather_icon,
-            "city": settings_profile_data["city"],
-            "current_date": current_date,
-            "last_rain_date": last_rain_date,
-            "next_rain_date": next_rain_date,
-            "last_water_date": last_water_date,
-            "last_water_duration": last_water_duration,
-            "next_water_date": next_water_date
-        }
-    )
+        next_water_date = get_next_water_date(
+            settings_profile_data
+        )
 
-    app.logger.info(dashboard_data)
+        dashboard_data.update(
+            {
+                "weather_detail": weather_detail,
+                "weather_icon": weather_icon,
+                "city": settings_profile_data["city"],
+                "current_date": current_date,
+                "last_rain_date": last_rain_date,
+                "next_rain_date": next_rain_date,
+                "last_water_date": last_water_date,
+                "last_water_duration": last_water_duration,
+                "next_water_date": next_water_date
+            }
+        )
+
+    except Exception as e:
+
+        app.logger.error(e)
+
+        current_date = datetime.datetime.now(
+            pytz.timezone("Europe/London")
+        )
+
+        dashboard_data.update(
+            {
+                "weather_detail": "Misconfigured Settings Profile",
+                "weather_icon": "wi wi-na",
+                "current_date": current_date,
+                "last_rain_date": "Invalid API Key",
+                "next_rain_date": "Invalid API Key",
+                "last_water_date": "N/A",
+                "last_water_duration": "N/A",
+                "next_water_date": "Invalid API Key"
+            }
+        )
 
     return dashboard_data

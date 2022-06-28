@@ -161,6 +161,18 @@ def profile():
     timezones = pytz.common_timezones
     settings_profiles = Settings.query.filter().order_by(Settings.name)
 
+    if current_user.primary_profile_id is not None:
+
+        primary_profile = Settings.query.filter_by(
+            id=current_user.primary_profile_id
+        ).first()
+
+        primary_profile_name = primary_profile.name
+
+    else:
+
+        primary_profile_name = None
+
     if request.method == "POST":
 
         settings_profile_data = Settings.query.filter_by(
@@ -170,7 +182,10 @@ def profile():
         current_user.first_name = request.form.get("first_name")
         current_user.last_name = request.form.get("last_name")
         current_user.timezone = request.form.get("timezone")
-        current_user.primary_profile_id = settings_profile_data.id
+
+        if settings_profile_data is not None:
+
+            current_user.primary_profile_id = settings_profile_data.id
 
         db.session.commit()
 
@@ -181,7 +196,8 @@ def profile():
         form=image_form,
         timezones=timezones,
         segment=active_icon,
-        settings_profiles=settings_profiles
+        settings_profiles=settings_profiles,
+        primary_profile_name=primary_profile_name
     )
 
 
