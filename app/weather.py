@@ -237,8 +237,14 @@ def get_next_water_date(settings_profile_data):
         microsecond=0
     )
 
+    # Set the seconds to 0 as we only care about the hour/minute for comparison
+    current_datetime = current_datetime.replace(
+        second=0,
+        microsecond=0
+    )
+
     # If the hour/minute setting has already passed today, set day to tomorrow
-    if modified_datetime > current_datetime:
+    if modified_datetime >= current_datetime:
 
         next_water_date = modified_datetime
     else:

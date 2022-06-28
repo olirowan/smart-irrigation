@@ -8,5 +8,5 @@ Source code for the smart-irrigation flask project that waters plants.
 
 . ./set_env.sh
 source venv/bin/activate
-flask run 
+python smart-irrigation.py 
 ```

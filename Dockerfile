@@ -4,6 +4,8 @@ WORKDIR /application
 
 COPY ./ ./
 
+ENV TZ=Europe/London
+
 RUN apt-get update && apt-get install -y nginx supervisor
 RUN useradd --no-create-home nginx
 RUN pip3 install -r requirements.txt
