@@ -204,10 +204,53 @@
 
                         <div class="mt-3">
                             <button type="submit" class="btn btn-light">{% block save_button %}
-                                Update{% endblock %}</button>
+                                Update Profile{% endblock %}</button>
                         </div>
 
                     </form>
+
+                    <li role="separator" class="dropdown-divider my-4 border-danger"></li>
+
+                    <!-- Button trigger modal -->
+                    <div class="my-2 text-end">
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                            data-bs-target="#confirmDeleteModal">
+                            Delete Profile
+                        </button>
+                    </div>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Confirm to Delete</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete the following Profile:
+                                    <br>
+                                    <br>
+                                    <b>{{ settings_profile.name }}</b>
+                                </div>
+                                <div class="modal-footer">
+
+                                    <form method="POST"
+                                        action="{{ url_for('home_blueprint.delete_settings_profile', name=settings_profile.name) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                                        <button type="button" class="btn btn-info"
+                                            data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-danger">{% block delete_button %}
+                                            Delete Profile{% endblock %}</button>
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -219,5 +262,8 @@
 {% endblock content %}
 
 {% block javascripts %}
+
+
+
 
 {% endblock javascripts %}

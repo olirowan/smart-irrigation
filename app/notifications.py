@@ -1,6 +1,6 @@
 import urllib
 import requests
-from app import app, celery
+from app import app
 
 
 def telegram_notify(notification):
@@ -25,25 +25,4 @@ def telegram_notify(notification):
     else:
 
         app.logger.warning("Failed to send telegram notification.")
-
-
-def get_celery_worker_status():
-
-    inspection = celery.control.inspect()
-
-    availability = inspection.ping()
-    stats = inspection.stats()
-    registered_tasks = inspection.registered()
-    active_tasks = inspection.active()
-    scheduled_tasks = inspection.scheduled()
-
-    result = {
-        'availability': availability,
-        'stats': stats,
-        'registered_tasks': registered_tasks,
-        'active_tasks': active_tasks,
-        'scheduled_tasks': scheduled_tasks
-    }
-
-    return result
 

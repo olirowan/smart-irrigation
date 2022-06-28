@@ -150,6 +150,19 @@ def settings_profile(name):
     )
 
 
+@blueprint.route("/settings/<name>/delete", methods=["POST"])
+@login_required
+def delete_settings_profile(name):
+
+    settings_profile = Settings.query.filter_by(name=name).first_or_404()
+
+    db.session.delete(settings_profile)
+
+    db.session.commit()
+
+    return redirect(url_for("home_blueprint.settings"))
+
+
 @blueprint.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():
