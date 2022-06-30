@@ -116,7 +116,10 @@ def get_last_rain_date(settings_profile_data):
 
     if current_weather.status.lower() == "rain":
 
-        current_time = convert_local_utc(datetime.now().timestamp())
+        current_time = convert_local_utc(
+            datetime.now().timestamp(),
+            settings_profile_data
+            )
 
         return datetime.fromtimestamp(current_time)
 
