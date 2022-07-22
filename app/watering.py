@@ -3,15 +3,17 @@ import datetime
 
 from flask_socketio import SocketIO
 
-from app import app, celery, db, task_schedule
+from app import app, celery, db
+# from app import task_schedule
 from app.models import Settings, Watering
 from app.notifications import telegram_notify
 from app.weather import get_next_water_date
 
 
 # Check through settings profiles to water at defined times.
-@task_schedule.scheduled_job('cron', minute='*')
-def check_water_routine():
+# @task_schedule.scheduled_job('cron', minute='*')
+@celery.task
+def check_water_schedule():
 
     app.logger.info("Checking Watering Schedule")
 
@@ -62,7 +64,11 @@ def check_water_routine():
                     settings_profile_data["water_duration_minutes"]
                 ) * 60
 
-                water_plants.delay(settings_profile_data, duration_seconds, 1)
+                water_plants.delay(
+                    settings_profile_data["id"],
+                    duration_seconds,
+                    1
+                )
 
             else:
 
@@ -85,7 +91,15 @@ def check_water_routine():
     base=celery.QueueOnce,
     once={'timeout': 60 * 60}
 )
-def water_plants(settings_profile_data, duration_seconds, is_adhoc_request):
+def water_plants(profile_id, duration_seconds, is_adhoc_request):
+
+    app.logger.info(profile_id)
+
+    settings_profile_data = Settings.query.filter_by(
+        id=profile_id
+    ).first()
+
+    app.logger.info(settings_profile_data)
 
     rain = u'\U00002614'
 
@@ -95,26 +109,27 @@ def water_plants(settings_profile_data, duration_seconds, is_adhoc_request):
 
     if app.config['DEMO_MODE'] == "False":
 
-            import RPi.GPIO as GPIO
+        import RPi.GPIO as GPIO
 
-            telegram_notify(
-                rain + " - Scheduled watering has started at: " +
-                str(datetime.datetime.now().strftime("%d-%m-%Y %H:%M"))
-            )
+        telegram_notify(
+            rain + " - Scheduled watering has started at: " +
+            str(datetime.datetime.now().strftime("%d-%m-%Y %H:%M")),
+            settings_profile_data
+        )
 
-            GPIO.setmode(GPIO.BCM)
-            GPIO_PIN = 21
+        GPIO.setmode(GPIO.BCM)
+        GPIO_PIN = 21
 
-            GPIO.setup(GPIO_PIN, GPIO.OUT)
-            GPIO.output(GPIO_PIN, False)
+        GPIO.setup(GPIO_PIN, GPIO.OUT)
+        GPIO.output(GPIO_PIN, False)
 
-            GPIO.output(GPIO_PIN, True)
+        GPIO.output(GPIO_PIN, True)
 
     else:
 
         app.logger.info(
             "DEMO MODE ENABLED for Settings Profile: " +
-            settings_profile_data["name"] +
+            settings_profile_data.name +
             " has started watering."
         )
 
@@ -148,7 +163,8 @@ def water_plants(settings_profile_data, duration_seconds, is_adhoc_request):
         GPIO.output(GPIO_PIN, False)
         telegram_notify(
             rain + " - Scheduled watering has completed at: " +
-            str(datetime.datetime.now().strftime("%d-%m-%Y %H:%M"))
+            str(datetime.datetime.now().strftime("%d-%m-%Y %H:%M")),
+            settings_profile_data
         )
         GPIO.cleanup()
 
@@ -156,7 +172,7 @@ def water_plants(settings_profile_data, duration_seconds, is_adhoc_request):
 
         app.logger.info(
             "DEMO MODE ENABLED for Settings Profile: " +
-            settings_profile_data["name"] +
+            settings_profile_data.name +
             " has completed watering."
         )
 

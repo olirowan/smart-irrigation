@@ -52,7 +52,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('username', sa.String(length=32), nullable=True),
     sa.Column('email', sa.String(length=128), nullable=True),
-    sa.Column('password', sa.Binary(), nullable=True),
+    sa.Column('password', sa.LargeBinary(), nullable=True),
     sa.Column('first_name', sa.String(length=32), nullable=True),
     sa.Column('last_name', sa.String(length=32), nullable=True),
     sa.Column('profileimage', sa.String(length=256), nullable=True),

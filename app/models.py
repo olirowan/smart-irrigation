@@ -1,7 +1,8 @@
 from time import time
 import jwt
 from flask_login import UserMixin
-from sqlalchemy import Binary, Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, ForeignKey
+from sqlalchemy.types import LargeBinary, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 from app import app, db, login_manager
 from app.util import hash_pass
@@ -15,7 +16,7 @@ class User(db.Model, UserMixin):
 
     username = Column(String(32), unique=True)
     email = Column(String(128), unique=True)
-    password = Column(Binary)
+    password = Column(LargeBinary)
 
     first_name = Column(String(32))
     last_name = Column(String(32))

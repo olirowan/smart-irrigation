@@ -16,28 +16,24 @@
         <div class="row justify-content-center">
             <div class="col-12 col-xl-10 py-2">
                 <div class="card h-100 card-body bg-white border-dark shadow-sm text-center p-0">
-                    <div class="profile-cover rounded-top">
-                    </div>
-                    <div class="card-body pb-5">
+                    <div class="card-body">
+
                         <img src="{{ url_for('static', filename='uploads/'+current_user.profileimage) }}"
-                            class="user-avatar large-avatar rounded-circle mx-auto mt-n7 mb-4"
+                            class="user-avatar large-avatar rounded-circle mx-auto my-2"
                             alt="{{ current_user.first_name }}">
-                        <h4 class="h3 text-white">
+
+                        <h4 class="h3 text-white my-2">
                             {{ current_user.first_name }} {{ current_user.last_name }}
                         </h4>
-                        <h5 class="font-weight-normal text-white">
-                            {{ current_user.email }}
-                        </h5>
-                        <p class="mb-4 text-white">{{ current_user.city }}</p>
 
-                        <div class="d-flex justify-content-center ml-xl-3">
+                        <div class="d-flex justify-content-center my-4 ml-xl-3">
                             <div class="d-md-block">
                                 <form method=POST enctype=multipart/form-data
                                     action="{{ url_for('home_blueprint.profileimage') }}">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                                     <div class="row">
-                                        <div class="col-9 mb-4 mr-0 pr-0">
-                                            <div class="form-file mb-3">
+                                        <div class="col-9 mb-2 mr-0 pr-0">
+                                            <div class="form-file">
                                                 <input type="file" name=photo id="profilepic"
                                                     class="form-control form-file-input">
                                                 <label class="form-file-label custom-file-label" for="customFile">
@@ -48,7 +44,7 @@
                                                 </label>
                                             </div>
                                         </div>
-                                        <div class="col-3 mb-4 ml-0 pl-0">
+                                        <div class="col-3 mb-2 ml-0 pl-0">
                                             <button class="btn btn-light" id="ProfilePictureSubmit"
                                                 type="submit">Update</button>
                                         </div>
@@ -101,7 +97,8 @@
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="my-t mr-2 text-white" for="primary_profile">Primary Settings Profile</label>
+                                <label class="my-t mr-2 text-white" for="primary_profile">Primary Settings
+                                    Profile</label>
                                 <select class="form-select" id="primary_profile" name="primary_profile">
                                     <option>{% if primary_profile_name %}{{ primary_profile_name
                                         }}{% endif %}</option>

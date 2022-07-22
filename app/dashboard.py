@@ -1,5 +1,5 @@
 import pytz
-import datetime
+from datetime import datetime
 
 from flask_login import current_user
 
@@ -35,7 +35,7 @@ def get_dashboard_data():
 
         dashboard_data = {}
 
-        current_date = datetime.datetime.now(
+        current_date = datetime.now(
             pytz.timezone("Europe/London")
         )
 
@@ -77,7 +77,7 @@ def generate_dashboard_data(settings_profile_data_raw):
 
         weather_detail = current_weather.detailed_status
 
-        current_date = datetime.datetime.now(
+        current_date = datetime.now(
             pytz.timezone(settings_profile_data["timezone"])
         )
 
@@ -126,7 +126,7 @@ def generate_dashboard_data(settings_profile_data_raw):
 
         app.logger.error(e)
 
-        current_date = datetime.datetime.now(
+        current_date = datetime.now(
             pytz.timezone("Europe/London")
         )
 

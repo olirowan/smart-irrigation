@@ -1,4 +1,3 @@
-
 import json
 import pytz
 from pyowm import OWM
@@ -153,7 +152,7 @@ def get_last_rain_date(settings_profile_data):
 
     if last_rain_date is None:
 
-        return "a while ago"
+        return "over a week ago"
     else:
         return datetime.fromtimestamp(last_rain_date)
 
@@ -184,7 +183,7 @@ def get_next_rain_date(settings_profile_data):
 
     if next_rain_date is None:
 
-        return "currently unknown"
+        return "over a week away"
     else:
         return datetime.fromtimestamp(next_rain_date)
 
@@ -326,7 +325,7 @@ def get_next_water_date(settings_profile_data):
                 settings_profile_data
             )
 
-            if forecast_rain == "currently unknown":
+            if forecast_rain == "over a week away":
 
                 if_rained_today = False
                 eod_skip = True

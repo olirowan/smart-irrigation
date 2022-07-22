@@ -22,6 +22,8 @@ def get_celery_worker_status():
         'scheduled_tasks': scheduled_tasks
     }
 
+    print(result)
+
     return result
 
 

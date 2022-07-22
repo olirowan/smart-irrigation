@@ -1,4 +1,5 @@
 from geopy.geocoders import Nominatim
+from app import app
 
 
 def get_city_country(latitude, longitude):

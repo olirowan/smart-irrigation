@@ -1,11 +1,11 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField
-from wtforms import TextField, PasswordField
+from wtforms import StringField, PasswordField
 from wtforms.validators import EqualTo, Email, DataRequired
 
 
 class LoginForm(FlaskForm):
-    username = TextField(
+    username = StringField(
         "Username",
         id="username_login",
         validators=[DataRequired()]
@@ -18,12 +18,12 @@ class LoginForm(FlaskForm):
 
 
 class CreateAccountForm(FlaskForm):
-    username = TextField(
+    username = StringField(
         "Username",
         id="username_create",
         validators=[DataRequired()]
     )
-    email = TextField(
+    email = StringField(
         "Email",
         id="email_create",
         validators=[DataRequired(), Email()]
@@ -36,7 +36,7 @@ class CreateAccountForm(FlaskForm):
 
 
 class ResetPasswordRequestForm(FlaskForm):
-    email = TextField(
+    email = StringField(
         "Email",
         id="email_create",
         validators=[DataRequired(), Email()]

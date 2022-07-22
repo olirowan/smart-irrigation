@@ -403,25 +403,31 @@ def water_plants_socket(duration):
 
     command = duration.get("duration")
 
+    profile_id = current_user.primary_profile_id
+
+    settings_profile_data = Settings.query.filter_by(
+        id=current_user.primary_profile_id
+    ).first()
+
     if command == "cancel_duration":
         cancel_water_plants.delay()
 
     elif command == "one_duration":
-        water_plants.delay(60, 1)
+        water_plants.delay(profile_id, 60, 1)
 
     elif command == "five_duration":
-        water_plants.delay(300, 1)
+        water_plants.delay(profile_id, 300, 1)
 
     elif command == "ten_duration":
-        water_plants.delay(600, 1)
+        water_plants.delay(profile_id, 600, 1)
 
     elif command == "thirty_duration":
-        water_plants.delay(1800, 1)
+        water_plants.delay(profile_id, 1800, 1)
 
     elif command == "default_duration":
 
-        time_seconds = int(current_user.water_duration_minutes) * 60
-        water_plants.delay(time_seconds, 1)
+        time_seconds = int(settings_profile_data.water_duration_minutes) * 60
+        water_plants.delay(profile_id, time_seconds, 1)
 
     else:
         app.logger.info("Unexpected command passed.")
