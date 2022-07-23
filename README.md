@@ -1,23 +1,10 @@
-# smart-irrigation
-
-Source code for the smart-irrigation flask project that waters plants.
-
- - Running locally:
-
-```bash
-
-. ./set_env.sh
-source venv/bin/activate
-python smart-irrigation.py 
-```
-
 # Smart Irrigaton
 
-`Smart Irrigaton` is an application inspired by the idea of watering garden plants using a Raspberry Pi:
+`Smart Irrigaton` is an application inspired by the idea of watering garden plants using a Raspberry Pi.
 
-This repo contains the software that complements the hardware side of the project - which controls the water release via GPIO Pins and a Solenoid Valve.
+This repo contains the software that complements the hardware side of the project, controlling the water release via GPIO Pins and a Solenoid Valve.
 
-The design is 
+The design is to schedule watering via a task queue. The worker will run on the RPi and manage the valve, but the frontend can be run separately.
 
 ## Getting Started
 
@@ -75,6 +62,7 @@ The Celery worker(s) should be running on the RPi connected to the Solenoid Valv
 The frontend can be run on the RPi or it can be hosted elsewhere, as long as both the frontend and Celery worker are able to connect to the same redis and database endpoints.
 
 Due to this, I recommend running the frontend in a container for quick setup.
+
 If you don't wish to use containers then the configuration from _supervisord.conf_ and _nginx-config.conf_ can be used as a reference.
 
 ## Build in Docker
@@ -100,6 +88,7 @@ docker run --name smartirrigation -it \
 ## Configure Application
 
 You should now be able to access the frontend at http://127.0.0.1:5000/
+
 From here the dashboard should prompt you to create a _Settings Profile_ (_Settings_ > _Add New Settings Profile_)
 
 This will require an OpenWeatherMap API Key which can be obtained from signing up to their platform:
