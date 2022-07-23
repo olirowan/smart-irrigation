@@ -240,12 +240,12 @@ def profileimage():
 
             flash("Profile image updated.")
 
-            return redirect(url_for("home_blueprint.settings"))
+            return redirect(url_for("home_blueprint.profile"))
 
         except Exception as e:
             app.logger.info("Exception: ", str(e))
 
-    return redirect(url_for("home_blueprint.settings"))
+    return redirect(url_for("home_blueprint.profile"))
 
 
 # Login & Registration

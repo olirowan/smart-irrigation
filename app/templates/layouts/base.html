@@ -14,7 +14,8 @@
         <link rel="canonical" href="https://olirowan.xyz">
 
         <!-- Fontawesome -->
-        <link type="text/css" href="/static/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+        <!-- <link type="text/css" href="/static/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet"> -->
+        <script src="https://kit.fontawesome.com/3448a7be96.js" origin="anonymous"></script>
 
         <!-- Favicon Updated -->
         <link rel="icon" type="image/svg+xml" href="/static/assets/img/plantlogo.svg">
@@ -63,7 +64,7 @@
 
         {% block scripts %}
             <!-- Optional JavaScript -->
-            {% include 'includes/scripts.html' %}
+            <script src="/static/assets/js/jquery.min.js"></script>
             {{ bootstrap.load_js() }}
         {% endblock %}
 

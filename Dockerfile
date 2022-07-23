@@ -12,7 +12,6 @@ RUN pip3 install -r requirements.txt
 RUN mkdir -p logs
 
 COPY supervisord.conf /etc/
-COPY uwsgi.ini /etc/uwsgi/
 COPY nginx.conf /etc/nginx/
 COPY nginx-config.conf /etc/nginx/sites-enabled/default
 
