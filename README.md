@@ -101,3 +101,26 @@ This will require an OpenWeatherMap API Key which can be obtained from signing u
 Additional details (including a hardware build) about this project can be found onwards from this blogpost:
 
 - https://blog.olirowan.com/raspberry-pi-home-irrigation-part-1-overview/
+
+
+## Screenshots
+
+- Main Dashboard
+
+![Dashboard](https://blog.olirowan.com/static/images/media/irrigation_application/01_dashboard.png)
+
+- Profile
+
+![Profile](https://blog.olirowan.com/static/images/media/irrigation_application/02_profile.png)
+
+- Settings Profiles
+
+![Settings Profiles](https://blog.olirowan.com/static/images/media/irrigation_application/03_settings_profiles.png)
+
+- Settings
+
+![Settings](https://blog.olirowan.com/static/images/media/irrigation_application/04_settings_profile.png)
+
+Watering Progress on Dashboard
+
+![Watering Progress](https://blog.olirowan.com/static/images/media/irrigation_application/05_watering.png)
