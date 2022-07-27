@@ -1,0 +1,38 @@
+{% extends "layouts/base-fullscreen.html" %}
+
+{% block title %} 403 Error {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <main>
+        <section class="vh-100 d-flex align-items-center justify-content-center">
+            <div class="container">
+                <div class="row align-items-center ">
+                    <div class="col-12 col-lg-5 order-2 order-lg-1 text-center text-lg-left">
+                                    <div class="row d-flex">
+                <div class="col-4 px-0">
+                    <img src="/static/assets/img/plantlogo.svg" alt="Smart Irrigation">    
+                </div>
+                <div class="col-6 px-0 align-self-center">
+                    <h1 class="text-white nav-title-text">Smart Irrigation</h1>
+                </div>
+            </div>
+                        <h1 class="text-white mt-5">ERROR 403</h1>
+                        <p class="text-white lead my-4">Forbidden, please login to access this resource.</p>
+                        <a class="btn btn-primary animate-hover" href="{{ url_for('home_blueprint.login') }}"><i class="fas fa-chevron-left mr-3 pl-2 animate-left-3"></i>Back to Login</a>
+                    </div>
+                    <!-- <div class="col-12 col-lg-7 order-1 order-lg-2 text-center d-flex align-items-center justify-content-center">
+                        <img class="img-fluid w-75" src="/static/assets/img/illustrations/500.svg" alt="500 Server Error">
+                    </div> -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

@@ -1,0 +1,129 @@
+<nav id="sidebarMenu" class="sidebar d-md-block bg-primary text-white collapse px-4">
+
+    <div class="sidebar-sticky pt-3 mx-auto">
+        <div
+            class="user-card d-flex d-md-none align-items-center justify-content-between justify-content-md-center pb-4">
+            <div class="d-flex align-items-center">
+                <div class="user-avatar lg-avatar mr-4">
+                    <img src="{{ url_for('static', filename='uploads/'+current_user.profileimage) }}"
+                        class="card-img-top rounded-circle border-white" alt="{{ current_user.username }}">
+                </div>
+                <div class="d-block">
+                    <h2 class="h6">
+                        {{ current_user.username }}
+                    </h2>
+                </div>
+            </div>
+            <div class="collapse-close d-md-none">
+                <a href="#sidebarMenu" class="fas fa-times" data-toggle="collapse" data-target="#sidebarMenu"
+                    aria-controls="sidebarMenu" aria-expanded="true" aria-label="Toggle navigation"></a>
+            </div>
+        </div>
+
+        <a href="{{ url_for('home_blueprint.dashboard') }}">
+            <div class="row d-flex">
+                <div class="col-4 px-0">
+                    <img src="/static/assets/img/plantlogo.svg" alt="Smart Irrigation">    
+                </div>
+                <div class="col-8 px-0 align-self-center">
+                    <h4 class="nav-title-text">Smart Irrigation</h4>
+                </div>
+            </div>
+        </a>
+
+        <ul class="nav flex-column">
+
+            <li role="separator" class="dropdown-divider mt-4 mb-3 border-black"></li>
+
+            <li class="nav-item  {% if 'dashboard' in segment %} active {% endif %}">
+                <a href="{{ url_for('home_blueprint.dashboard') }}" class="nav-link">
+                    <span class="sidebar-icon"><span class="fas fa-chart-area"></span></span>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li class="nav-item  {% if 'profile' in segment %} active {% endif %}">
+                <a href="{{ url_for('home_blueprint.profile') }}" class="nav-link">
+                    <span class="sidebar-icon"><span class="fas fa-user"></span></span>
+                    <span>Profile</span>
+                </a>
+            </li>
+
+            <li class="nav-item  {% if 'settings' in segment %} active {% endif %}">
+                <a href="{{ url_for('home_blueprint.settings') }}" class="nav-link">
+                    <span class="sidebar-icon"><span class="fas fa-cog"></span></span>
+                    <span>Settings</span>
+                </a>
+            </li>
+
+            <li role="separator" class="dropdown-divider mt-4 mb-3 border-black"></li>
+
+            <li class="nav-item  {% if 'hardware' in segment %} active {% endif %}">
+                <a target="_blank" href="https://blog.olirowan.com/raspberry-pi-home-irrigation-part-1-overview/" class="nav-link">
+                    <span class="sidebar-icon"><span class="fas fa-seedling"></span></span>
+                    <span>Overview</span>
+                </a>
+            </li>
+            <li class="nav-item  {% if 'hardware' in segment %} active {% endif %}">
+                <a target="_blank" href="https://blog.olirowan.com/raspberry-pi-home-irrigation-part-2-hardware/" class="nav-link">
+                    <span class="sidebar-icon"><span class="fas fa-microchip"></span></span>
+                    <span>Hardware</span>
+                </a>
+            </li>
+            <li class="nav-item  {% if 'application' in segment %} active {% endif %}">
+                <a target="_blank" href="https://blog.olirowan.com/raspberry-pi-home-irrigation-part-3-application/" class="nav-link">
+                    <span class="sidebar-icon"><span class="fas fa-code"></span></span>
+                    <span>Application</span>
+                </a>
+            </li>
+            <li class="nav-item  {% if 'infrastructure' in segment %} active {% endif %}">
+                <a target="_blank" href="https://blog.olirowan.com/raspberry-pi-home-irrigation-part-4-infrastructure/" class="nav-link">
+                    <span class="sidebar-icon"><span class="fas fa-server"></span></span>
+                    <span>Infrastructure</span>
+                </a>
+            </li>
+
+            <li role="separator" class="dropdown-divider mt-4 mb-3 border-black"></li>
+
+            <li class="nav-item">
+                <a href="{{ url_for('home_blueprint.logout') }}" class="nav-link">
+                    <span class="sidebar-icon"><span class="fas fa-sign-out-alt text-danger"></span></span>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <footer class="fixed-bottom px-4 py-2 mx-auto">
+        <h6 class="font-weight-normal text-muted"><span id="socketStatusIcon"
+                class="icon w-20 icon-xs icon-danger mr-1"><span class="fas fa-plug"></span></span>
+            <span id="socketStatusText">Irrigation Disconnected</span>
+        </h6>
+    </footer>
+
+    <script src="/static/assets/js/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            namespace = '/water';
+            var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+            socket.on('connect', function () {
+                socket.emit('connection', { connection_confirmation: 'Irrigation Connected' });
+
+            });
+
+            socket.on('confirmation', function (data) {
+                var confir_str = data.connection_confirmation;
+                connection_status = '<span class="icon w-20 icon-xs icon-success mr-1"><span class="fas fa-plug"></span></span>' + confir_str
+                document.getElementById("socketStatusIcon").classList.remove('icon-danger');
+                document.getElementById("socketStatusIcon").classList.add('icon-success');
+                document.getElementById("socketStatusText").innerHTML = confir_str
+            });
+        });
+    </script>
+
+
+</nav>

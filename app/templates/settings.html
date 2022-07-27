@@ -1,0 +1,63 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Settings {% endblock %}
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<main class="content">
+
+    {% include 'includes/navigation.html' %}
+
+    <div class="py-4">
+    </div>
+
+    <div class="main-container">
+        <div class="row justify-content-center">
+
+            <div class="col-12 col-xl-10 py-2">
+                <div class="card h-100 card-body bg-white border-dark shadow-sm">
+
+                    <h2 class="h5 my-4 text-white">Settings Profiles</h2>
+                    <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
+                    <div class="row justify-content-evenly text-center">
+
+                        {% for settings_profile in settings_profiles %}
+
+                        <div class="col-5">
+                            <div class="card my-4 text-white">
+                                <div class="card-header mx-3">
+                                    <h3>{{ settings_profile.name }}</h3>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">{{ settings_profile.description }}
+                                    </p>
+                                    <a href="{{ url_for('home_blueprint.settings_profile', name=settings_profile.name) }}"
+                                        class="btn btn-light">Edit Profile</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="mt-3">
+                        <a href="{{ url_for('home_blueprint.add_settings_profile') }}"><button class="btn btn-light">
+                            Add New Settings Profile</button></a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        {% include 'includes/footer.html' %}
+
+</main>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+{% endblock javascripts %}

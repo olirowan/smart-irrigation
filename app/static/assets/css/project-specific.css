@@ -1,0 +1,146 @@
+body,html {
+  height: 100%;
+  min-width: 100%;
+  background-image: url("/static/assets/img/background/background.jpg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+}
+
+.bg-soft {
+  background-color: unset !important;
+}
+
+.bg-primary {
+  background-color: #20202cdf !important;
+}
+
+.border-black {
+  border-color: #e9b25d !important;
+}
+
+.border-grey {
+  border-color: #262B40 !important;
+}
+
+.border-gold {
+  border-color: #e9b25d !important;
+}
+
+.card {
+  background-color: #20202cc9 !important;
+}
+
+.card-header {
+  border-bottom: 0.0625rem solid #e9b25d;
+}
+
+.btn-primary {
+  color: #ffffff;
+  background-color: #2e3650;
+  border-color: #262B40;
+}
+
+.btn-primary:hover {
+  color: #e9b25d;
+  background-color: #20202C;
+  border-color: #262B40;
+}
+
+.btn-secondary {
+  color: #262B40;
+  background-color: #e9b25d;
+  border-color: #e9b25d;
+}
+
+.sidebar .nav-item .nav-link:hover {
+  color: #333;
+  background-color: #e9b25d;
+}
+
+.sidebar .nav-link .sidebar-icon {
+  color: #e9b25d;
+}
+
+.nav-title-text {
+  line-height: 1;
+}
+
+.sidebar .nav-link:hover .sidebar-icon {
+  color: #333;
+  background-color: #e9b25d;
+  transition: color 0.5s ease-in-out, background-color 0.5s ease-in-out, border-color 0.5s ease-in-out;
+}
+
+.sidebar .nav-item.active>.nav-link  {
+  color: #333;
+  background-color: #e9b25d;
+}
+
+.sidebar .nav-item.active>.nav-link .sidebar-icon {
+  color: #333;
+  background-color: #e9b25d;
+}
+
+.row-eq-height {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.progress {
+    width: 100%;
+    text-align: center;
+    height: 40px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    border-radius: 0.1rem;
+    background-color: #F7F5FB;
+    font-size: 0.75rem;
+    font-weight: 600;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.bg-info {
+  background-color: #b38540 !important;
+}
+
+.col-centered{
+  float: none;
+  margin: 0 auto;
+}
+
+.icon-shape {
+  width: -moz-available;
+  height: inherit;
+  margin-right: 3.5rem;
+  margin-left: 3.5rem;
+}
+
+.icon-shape span, .icon-shape svg {
+  font-size: 5rem;
+}
+
+.text-gold {
+  color: #e9b25d !important;
+}
+
+.text-gold:hover {
+  color: #fff !important;
+}
+
+.icon-shape-white {
+  color: #ffffff;
+  background-color: unset;
+}
+
+.form-check-input:checked {
+  background-color: #e9b25d;
+}
+
+label {
+  font-weight: normal;
+  margin-bottom: 0rem;
+}

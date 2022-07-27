@@ -1,0 +1,355 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %}
+
+<!-- {% block stylesheets %}{% endblock stylesheets %} -->
+
+{% block content %}
+
+<main class="content">
+
+    {% include 'includes/navigation.html' %}
+
+    <div class="col-12 text-xl-center mb-4 py-4 mb-xl-0">
+        <!-- <div id="progress"></div> -->
+    </div>
+
+    <div class="main-container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10 py-2">
+                <div class="card h-100 card-body bg-white border-dark shadow-sm text-center p-0">
+
+                    <div class="card-body pb-5">
+                        <div class="row">
+
+                            <div class="col-12 col-xl-3">
+                                <!-- <h1>Spacer</h1> -->
+                            </div>
+
+                            <div class="col-12 col-xl-6 mb-4">
+                                <div
+                                    class="col-12 col-xl-12 text-xl-center mb-3 mb-xl-0 d-flex justify-content-xl-center">
+                                    <div class="icon-shape d-flex icon-shape-white rounded">
+                                        <span>
+                                            <i class="text-white {{ dashboard_data.weather_icon }}"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-xl-12 px-xl-0">
+                                    <div class="d-none d-sm-block"></div>
+                                    <h1 class="mb-1 text-white">{{ dashboard_data.weather_detail|title }}</h1>
+                                    <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
+                                </div>
+
+                                <div class="col-12 col-xl-12 px-xl-0">
+                                    <h4 class="h6 text-white">
+                                        {{ dashboard_data.current_date.strftime('%a %d %b, %H:%M') }}
+                                    </h4>
+                                    <h4 class="h6 mt-2 text-white">
+                                        <span class="fas fa-globe-europe text-white"></span>
+                                        {{ dashboard_data.city }}
+                                    </h4>
+                                </div>
+                                <div class="d-flex justify-content-center ml-xl-3 pt-5 pb-2">
+                                    <div class="d-md-block">
+                                        <div class="btn-group mr-2 py-2">
+                                            <button type="button" id="water_plants_default" class="btn btn-light">
+                                                Water Plants
+                                            </button>
+                                            <button type="button"
+                                                class="btn btn-light dropdown-toggle dropdown-toggle-split"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <span class="fas fa-angle-down dropdown-arrow"></span>
+                                                <span class="sr-only">Toggle Dropdown</span>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" id="water_plants_one">1 Minute
+                                                    Water</a>
+                                                <a class="dropdown-item" id="water_plants_five">5 Minute
+                                                    Water</a>
+                                                <a class="dropdown-item" id="water_plants_ten">10 Minute
+                                                    Water</a>
+                                                <a class="dropdown-item" id="water_plants_thirty">30 Minute
+                                                    Water</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" id="water_plants_cancel">Stop
+                                                    Watering</a>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-xl-3">
+                                <!-- <h1>Spacer</h1> -->
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 text-xl-center mb-4 py-4 mb-xl-0">
+                                <span id="progressbar"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 col-xl-3">
+                                <div class="d-flex align-items-end flex-column mt-auto">
+                                    <div class="col-12 col-xl-12 px-xl-0">
+                                        <div class="d-none d-sm-block"></div>
+                                        <h5 class="mb-1 text-white">Last Rained</h5>
+                                        <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
+                                    </div>
+
+                                    <div class="col-12 col-xl-12 px-xl-0">
+                                        {% if dashboard_data.last_rain_date is string %}
+                                        <h4 class="h6 text-white">
+                                            {{ dashboard_data.last_rain_date }}
+                                        </h4>
+                                        {% else %}
+                                        <h4 class="h6 text-white">
+                                            {{ moment(dashboard_data.last_rain_date, local=true).fromNow() }}
+                                        </h4>
+                                        <h4 class="h6 text-white">
+                                            {{ dashboard_data.last_rain_date.strftime('%a %d %b, %H:%M') }}
+                                        </h4>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-xl-3">
+                                <div class="d-flex align-items-end flex-column mt-auto">
+                                    <div class="col-12 col-xl-12 px-xl-0">
+                                        <div class="d-none d-sm-block"></div>
+                                        <h5 class="mb-1 text-white">Last Watered</h5>
+                                        <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
+                                    </div>
+
+                                    <div class="col-12 col-xl-12 px-xl-0">
+                                        {% if dashboard_data.last_water_date is string %}
+                                        <h4 class="h6 text-white">
+                                            {{ dashboard_data.last_water_date }}
+                                        </h4>
+                                        {% else %}
+                                        <h4 class="h6 text-white">
+                                            {{ moment(dashboard_data.last_water_date, local=true).fromNow() }} (for {{
+                                                dashboard_data.last_water_duration }}m)
+                                        </h4>
+                                        <h4 class="h6 text-white">
+                                            {{ dashboard_data.last_water_date.strftime('%a %d %b, %H:%M') }}
+                                        </h4>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-xl-3">
+                                <div class="d-flex align-items-end flex-column mt-auto">
+                                    <div class="col-12 col-xl-12 px-xl-0">
+                                        <div class="d-none d-sm-block"></div>
+                                        <h5 class="mb-1 text-white">Next Rain</h5>
+                                        <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
+                                    </div>
+
+                                    <div class="col-12 col-xl-12 px-xl-0">
+                                        {% if dashboard_data.next_rain_date is string %}
+                                        <h4 class="h6 text-white">
+                                            {{ dashboard_data.next_rain_date }}
+                                        </h4>
+                                        {% else %}
+                                        <h4 class="h6 text-white">
+                                            {{ moment(dashboard_data.next_rain_date, local=true).fromNow() }}
+                                        </h4>
+                                        <h4 class="h6 text-white">
+                                            {{ dashboard_data.next_rain_date.strftime('%a %d %b, %H:%M') }}
+                                        </h4>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-xl-3">
+                                <div class="d-flex align-items-end flex-column mt-auto">
+                                    <div class="col-12 col-xl-12 px-xl-0">
+                                        <div class="d-none d-sm-block"></div>
+                                        <h5 class="mb-1 text-white">Next Water</h5>
+                                        <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
+                                    </div>
+
+                                    <div class="col-12 col-xl-12 px-xl-0">
+                                        {% if dashboard_data.next_water_date is string %}
+                                        <h4 class="h6 text-white">
+                                            {{ dashboard_data.next_water_date }}
+                                        </h4>
+                                        {% else %}
+                                        <h4 class="h6 text-white">
+                                            {{ moment(dashboard_data.next_water_date, local=true).fromNow() }}
+                                        </h4>
+                                        <h4 class="h6 text-white">
+                                            {{ dashboard_data.next_water_date.strftime('%a %d %b, %H:%M') }}
+                                        </h4>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script src="/static/assets/js/jquery.min.js"></script>
+            <script src="/static/assets/js/progressbar.min.js"></script>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
+            <script>
+
+                function emit_water_plants(water_duration) {
+
+                    namespace = '/water';
+                    var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+                    socket.emit('water_plants_socket', { duration: water_duration })
+
+                    display_water_progress()
+                }
+
+                function display_water_progress() {
+
+                    progresslock = $('<span id="progressbar-lock"></span>');
+                    var progresslockelement = document.getElementById('progressbar-lock');
+
+                    if (progresslockelement == null) {
+
+                        var bar = new ProgressBar.Line('#progressbar', {
+                            strokeWidth: 0.2,
+                            easing: 'easeInOut',
+                            duration: 1400,
+                            color: '#e9b25d',
+                            trailColor: '#eee',
+                            trailWidth: 1,
+                            text: {
+                                style: {
+                                    color: '#ffffff',
+                                    right: '0',
+                                    top: '30px',
+                                    padding: 0,
+                                    margin: 0,
+                                    transform: null
+                                },
+                                autoStyleContainer: false
+                            },
+                            from: { color: '#e9b25d' },
+                            to: { color: '#e9b25d' },
+                            step: (state, bar) => {
+                                bar.setText('Watering - ' + Math.round(bar.value() * 100) + ' %');
+                            }
+                        });
+
+                        $('#progressbar').append(progresslock);
+
+                        document.getElementById("water_plants_default").disabled = true;
+                    }
+
+                    namespace = '/water';
+                    var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+                    socket.on('short_response', function (reponse) {
+
+                        var myJSON = JSON.parse(JSON.stringify(reponse));
+
+                        if(typeof bar != 'undefined') {
+
+                            update_line_progress(myJSON, bar);
+
+                        }
+                    });
+                }
+
+                function update_line_progress(myJSON, bar) {
+
+                    percent = parseInt(myJSON['current'] * 100 / parseInt(myJSON['total']));
+                    bar.animate(percent / 100)
+
+                    if (myJSON['status'] == 'Done') {
+
+                        setTimeout(function () {
+                            $('#progressbar').empty();
+                            bar.destroy();
+                        }, 2500);
+                        setTimeout(function () {
+                            document.getElementById("water_plants_default").disabled = false;
+                        }, 2500);
+
+                        $(document).trigger('ready')
+                        location.reload()
+
+                    }
+                }
+
+                $(document).ready(function () {
+
+                    namespace = '/water';
+                    var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+                    socket.on('short_response', function (reponse) {
+
+                        display_water_progress();
+                    });
+
+                    $(function () {
+
+                        $('#water_plants_default').click(function () {
+                            emit_water_plants('default_duration')
+                        });
+
+                    });
+
+                    $(function () {
+
+                        $('#water_plants_one').click(function () {
+                            emit_water_plants('one_duration')
+                        });
+
+                    });
+
+                    $(function () {
+
+                        $('#water_plants_five').click(function () {
+                            emit_water_plants('five_duration')
+                        });
+
+                    });
+
+                    $(function () {
+
+                        $('#water_plants_ten').click(function () {
+                            emit_water_plants('ten_duration')
+                        });
+
+                    });
+
+                    $(function () {
+
+                        $('#water_plants_thirty').click(function () {
+                            emit_water_plants('thirty_duration')
+                        });
+                    });
+
+                    $(function () {
+
+                        $('#water_plants_cancel').click(function () {
+                            emit_water_plants('cancel_duration')
+                        });
+                    });
+
+                });
+
+            </script>
+
+            {% include 'includes/footer.html' %}
+
+</main>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
