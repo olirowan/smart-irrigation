@@ -63,7 +63,7 @@ The frontend can be run on the RPi or it can be hosted elsewhere, as long as bot
 
 Due to this, I recommend running the frontend in a container for quick setup.
 
-If you don't wish to use containers then the configuration from _supervisord.conf_ and _nginx-config.conf_ can be used as a reference.
+If you don't wish to use containers then the configuration from _supervisord.conf_ and _nginx-config.conf_ can be used as a reference to stand up the application as you prefer.
 
 ## Build in Docker
 
