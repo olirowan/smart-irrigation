@@ -1,42 +1,26 @@
-from app.models import Watering
-from datetime import datetime, timedelta
-from pyowm import OWM
 import json
 import pytz
-from geopy.geocoders import Nominatim
-from flask_login import current_user
+from pyowm import OWM
+from datetime import datetime, timedelta
+
 from app import app
+from app.models import Watering
 
 
-def init_owm(scheduled_user=current_user):
+def init_owm(settings_profile_data):
 
-    if scheduled_user is not None:
-
-        current_user = scheduled_user
-
-    owm = OWM(current_user.owm_apikey)
+    owm = OWM(settings_profile_data["owm_apikey"])
     mgr = owm.weather_manager()
 
     return mgr
 
 
-def get_city_country(latitude, longitude):
+def get_previous_day_timestamp(day_count, settings_profile_data):
 
-    geolocator = Nominatim(user_agent="SmartIrrigation", scheme='https')
-
-    lat_long = "% s, % s" % (str(latitude), str(longitude))
-    location = geolocator.reverse(lat_long, timeout=3)
-
-    return location.raw
-
-
-def get_previous_day_timestamp(day_count, scheduled_user=current_user):
-
-    if scheduled_user is not None:
-
-        current_user = scheduled_user
-
-    current_time = convert_local_utc(datetime.now().timestamp(), scheduled_user)
+    current_time = convert_local_utc(
+        datetime.now().timestamp(),
+        settings_profile_data
+    )
 
     return int(
         (datetime.fromtimestamp(
@@ -44,13 +28,9 @@ def get_previous_day_timestamp(day_count, scheduled_user=current_user):
     )
 
 
-def convert_local_utc(timestamp, scheduled_user=current_user):
+def convert_local_utc(timestamp, settings_profile_data):
 
-    if scheduled_user is not None:
-
-        current_user = scheduled_user
-
-    user_timezone = pytz.timezone(current_user.timezone)
+    user_timezone = pytz.timezone(settings_profile_data["timezone"])
 
     toconvert_timestamp = datetime.fromtimestamp(timestamp)
 
@@ -61,13 +41,9 @@ def convert_local_utc(timestamp, scheduled_user=current_user):
     return converted_timestamp.timestamp()
 
 
-def convert_utc_local(timestamp, scheduled_user=current_user):
+def convert_utc_local(timestamp, settings_profile_data):
 
-    if scheduled_user is not None:
-
-        current_user = scheduled_user
-
-    user_timezone = pytz.timezone(current_user.timezone)
+    user_timezone = pytz.timezone(settings_profile_data["timezone"])
 
     toconvert_timestamp = datetime.fromtimestamp(timestamp)
 
@@ -79,20 +55,16 @@ def convert_utc_local(timestamp, scheduled_user=current_user):
     return converted_timestamp.timestamp()
 
 
-def get_one_call_history(day_count, location_latitude, location_longitude, scheduled_user=current_user):
+def get_one_call_history(day_count, settings_profile_data):
 
-    if scheduled_user is not None:
+    timestamp = get_previous_day_timestamp(day_count, settings_profile_data)
 
-        current_user = scheduled_user
-
-    timestamp = get_previous_day_timestamp(day_count, current_user)
-
-    mgr = init_owm(scheduled_user)
+    mgr = init_owm(settings_profile_data)
 
     weather = mgr.one_call_history(
         dt=timestamp,
-        lat=float(location_latitude),
-        lon=float(location_longitude)
+        lat=float(settings_profile_data["latitude"]),
+        lon=float(settings_profile_data["longitude"])
     )
 
     return weather.forecast_hourly
@@ -108,43 +80,45 @@ def owm_icon_mapping(weather_code):
     return weather_icon
 
 
-def get_one_call_current(location_latitude, location_longitude, scheduled_user=current_user):
+def get_one_call_current(settings_profile_data):
 
-    if scheduled_user is not None:
-
-        current_user = scheduled_user
-
-    mgr = init_owm(current_user)
+    mgr = init_owm(settings_profile_data)
 
     weather = mgr.one_call(
-        lat=float(location_latitude),
-        lon=float(location_longitude),
+        lat=float(settings_profile_data["latitude"]),
+        lon=float(settings_profile_data["longitude"]),
     )
 
     return weather.forecast_hourly
 
 
-def get_current_weather(city, country):
+def get_current_weather(settings_profile_data):
 
-    mgr = init_owm()
+    mgr = init_owm(settings_profile_data)
 
-    observation = mgr.weather_at_place(city + "," + country)
+    observation = mgr.weather_at_place(
+        settings_profile_data["city"] +
+        "," +
+        settings_profile_data["country"]
+    )
 
     return observation.weather
 
 
-def get_last_rain_date(location_latitude, location_longitude):
+def get_last_rain_date(settings_profile_data):
 
     last_rain_date = None
 
     current_weather = get_current_weather(
-        current_user.city,
-        current_user.country
+        settings_profile_data
     )
 
     if current_weather.status.lower() == "rain":
 
-        current_time = convert_local_utc(datetime.now().timestamp())
+        current_time = convert_local_utc(
+            datetime.now().timestamp(),
+            settings_profile_data
+            )
 
         return datetime.fromtimestamp(current_time)
 
@@ -161,8 +135,7 @@ def get_last_rain_date(location_latitude, location_longitude):
 
                 historical_weather = get_one_call_history(
                     days_ago,
-                    location_latitude,
-                    location_longitude
+                    settings_profile_data
                 )
 
                 for daily_weather in reversed(historical_weather):
@@ -170,7 +143,8 @@ def get_last_rain_date(location_latitude, location_longitude):
                     if daily_weather.status.lower() == "rain":
 
                         last_rain_date = convert_local_utc(
-                            daily_weather.ref_time
+                            daily_weather.ref_time,
+                            settings_profile_data
                         )
 
                         break_parent_loop = True
@@ -178,33 +152,38 @@ def get_last_rain_date(location_latitude, location_longitude):
 
     if last_rain_date is None:
 
-        return "a while ago"
+        return "over a week ago"
     else:
         return datetime.fromtimestamp(last_rain_date)
 
 
-def get_next_rain_date(location_latitude, location_longitude):
+def get_next_rain_date(settings_profile_data):
 
     next_rain_date = None
 
     upcoming_weather = get_one_call_current(
-        location_latitude,
-        location_longitude
+        settings_profile_data
     )
 
-    current_time = convert_local_utc(datetime.now().timestamp())
+    current_time = convert_local_utc(
+        datetime.now().timestamp(),
+        settings_profile_data
+        )
 
     for hourly_weather in upcoming_weather:
         if hourly_weather.status.lower() == "rain":
             if current_time < hourly_weather.ref_time:
 
-                next_rain_date = convert_local_utc(hourly_weather.ref_time)
+                next_rain_date = convert_local_utc(
+                    hourly_weather.ref_time,
+                    settings_profile_data
+                )
 
                 break
 
     if next_rain_date is None:
 
-        return "currently unknown"
+        return "over a week away"
     else:
         return datetime.fromtimestamp(next_rain_date)
 
@@ -229,11 +208,7 @@ def get_last_water_date():
         return last_water_as_date, last_water_duration_minutes
 
 
-def get_next_water_date(location_latitude, location_longitude, scheduled_user=current_user):
-
-    if scheduled_user is not None:
-
-        current_user = scheduled_user
+def get_next_water_date(settings_profile_data):
 
     latest_rain_date = None
     if_rained_today = False
@@ -243,24 +218,35 @@ def get_next_water_date(location_latitude, location_longitude, scheduled_user=cu
     eod_skip = False
 
     # Check if user has actually set their preferred watering time
-    if (current_user.watering_start_at == "" or current_user.watering_start_at is None):
+    if (settings_profile_data["watering_start_at"] == "" or
+            settings_profile_data["watering_start_at"] is None):
 
         return "Configuration Not Set"
 
     # Get the current datetime to manipulate to match the user settings
-    current_utc_timestamp = convert_local_utc(datetime.now().timestamp(), scheduled_user)
+    current_utc_timestamp = convert_local_utc(
+        datetime.now().timestamp(),
+        settings_profile_data
+    )
+
     current_datetime = datetime.fromtimestamp(current_utc_timestamp)
 
     # Modify the datetimes hour/minute values to match user settings
     modified_datetime = current_datetime.replace(
-        hour=int(current_user.watering_start_at.split(":")[0]),
-        minute=int(current_user.watering_start_at.split(":")[1]),
+        hour=int(settings_profile_data["watering_start_at"].split(":")[0]),
+        minute=int(settings_profile_data["watering_start_at"].split(":")[1]),
+        second=0,
+        microsecond=0
+    )
+
+    # Set the seconds to 0 as we only care about the hour/minute for comparison
+    current_datetime = current_datetime.replace(
         second=0,
         microsecond=0
     )
 
     # If the hour/minute setting has already passed today, set day to tomorrow
-    if modified_datetime > current_datetime:
+    if modified_datetime >= current_datetime:
 
         next_water_date = modified_datetime
     else:
@@ -279,7 +265,9 @@ def get_next_water_date(location_latitude, location_longitude, scheduled_user=cu
             eod_skip = True
 
         # boolean for whether last watered date was yesterday
-        if last_water_date.date() == (current_datetime.date() - timedelta(days=1)):
+        if last_water_date.date() == (
+            current_datetime.date() - timedelta(days=1)
+        ):
 
             if_watered_yesterday = True
             eod_skip = True
@@ -288,13 +276,11 @@ def get_next_water_date(location_latitude, location_longitude, scheduled_user=cu
     #   - store upcoming rain
     #   - store if it rained yesterday
     #   - store if it rained today
-    if (current_user.skip_rained_today == "on" or
-            current_user.skip_rained_yesterday == "on"):
+    if (settings_profile_data["skip_rained_today"] == "on" or
+            settings_profile_data["skip_rained_yesterday"] == "on"):
 
         upcoming_weather = get_one_call_current(
-            location_latitude,
-            location_longitude,
-            scheduled_user
+            settings_profile_data
         )
 
         for hourly_weather in reversed(upcoming_weather):
@@ -302,7 +288,10 @@ def get_next_water_date(location_latitude, location_longitude, scheduled_user=cu
             if hourly_weather.status.lower() == "rain":
 
                 latest_rain_date = datetime.fromtimestamp(
-                    convert_utc_local(hourly_weather.ref_time, scheduled_user)
+                    convert_utc_local(
+                        hourly_weather.ref_time,
+                        settings_profile_data
+                    )
                 )
                 break
 
@@ -314,16 +303,12 @@ def get_next_water_date(location_latitude, location_longitude, scheduled_user=cu
         # not until the end of the day.
         todays_weather_so_far = get_one_call_history(
             0,
-            current_user.latitude,
-            current_user.longitude,
-            scheduled_user
+            settings_profile_data
         )
 
         yesterdays_weather = get_one_call_history(
             1,
-            current_user.latitude,
-            current_user.longitude,
-            scheduled_user
+            settings_profile_data
         )
 
         for todays_weather_statuses in todays_weather_so_far:
@@ -337,11 +322,10 @@ def get_next_water_date(location_latitude, location_longitude, scheduled_user=cu
         if if_rained_today is False:
 
             forecast_rain = get_next_rain_date(
-                current_user.latitude,
-                current_user.longitude
+                settings_profile_data
             )
 
-            if forecast_rain == "currently unknown":
+            if forecast_rain == "over a week away":
 
                 if_rained_today = False
                 eod_skip = True
@@ -362,51 +346,49 @@ def get_next_water_date(location_latitude, location_longitude, scheduled_user=cu
     # If there's no historical watering and the user settings are not
     # impacted by rainfall, then water at next time occurance
     if (last_water_date == "never" and
-        ((current_user.skip_rained_today != "on" and current_user.skip_rained_yesterday != "on") or latest_rain_date == "unknown")):
+            ((settings_profile_data["skip_rained_today"] != "on" and
+                settings_profile_data["skip_rained_yesterday"] != "on") or
+                latest_rain_date == "unknown")):
 
         return next_water_date
 
     else:
 
-        # Log a bunch of variables for debugging
-        app.logger.info("last water date: " + str(last_water_date))
+        if (settings_profile_data["skip_watered_today"] == "on"
+                and if_watered_today is True):
 
-        app.logger.info("if skip rained today: " + str(current_user.skip_rained_today))
-        app.logger.info("if skip rained yesterday: " + str(current_user.skip_rained_yesterday))
-        app.logger.info("if skip watered today: " + str(current_user.skip_watered_today))
-        app.logger.info("if skip watered yesterday: " + str(current_user.skip_watered_yesterday))
+            if next_water_date.date() <= current_datetime.date():
 
-        app.logger.info("if watered today: " + str(if_watered_today))
-        app.logger.info("if watered yesterday: " + str(if_watered_yesterday))
-        app.logger.info("if rained today: " + str(if_rained_today))
-        app.logger.info("if rained yesterday: " + str(if_rained_yesterday))
+                next_water_date = next_water_date + timedelta(days=1)
 
-        app.logger.info("latest rain date: " + str(latest_rain_date))
+        if (settings_profile_data["skip_watered_yesterday"] == "on"
+                and if_watered_yesterday is True):
 
-
-        if current_user.skip_watered_today == "on" and if_watered_today is True:
             if next_water_date.date() <= current_datetime.date():
                 next_water_date = next_water_date + timedelta(days=1)
 
-        if current_user.skip_watered_yesterday == "on" and if_watered_yesterday is True:
-            if next_water_date.date() <= current_datetime.date():
-                next_water_date = next_water_date + timedelta(days=1)
+        if (settings_profile_data["skip_rained_today"] == "on"
+                and if_rained_today is True):
 
-        if current_user.skip_rained_today == "on" and if_rained_today is True:
             if next_water_date.date() <= current_datetime.date():
                 next_water_date = next_water_date + timedelta(days=1)
 
             if next_water_date.date() == latest_rain_date.date():
                 next_water_date = next_water_date + timedelta(days=1)
 
-        if current_user.skip_rained_yesterday == "on" and if_rained_yesterday is True:
+        if (settings_profile_data["skip_rained_yesterday"] == "on"
+                and if_rained_yesterday is True):
+
             if next_water_date.date() <= current_datetime.date():
                 next_water_date = next_water_date + timedelta(days=1)
 
-            if next_water_date.date() == (latest_rain_date + timedelta(days=1)).date():
+            if (next_water_date.date() ==
+                    (latest_rain_date + timedelta(days=1)).date()):
+
                 next_water_date = next_water_date + timedelta(days=1)
 
-        if current_user.schedule_watering == "eod" and eod_skip is True:
+        if (settings_profile_data["schedule_watering"] == "eod"
+                and eod_skip is True):
 
             next_water_date = next_water_date + timedelta(days=1)
 

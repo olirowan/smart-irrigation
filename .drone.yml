@@ -1,0 +1,85 @@
+kind: pipeline
+type: docker
+name: smart-irrigation
+
+steps:
+  - name: harbor-upload
+
+    image: plugins/docker
+    settings:
+      repo: registry.home.olirowan.com/library/olirowan/smart-irrigation
+      registry: http://registry.home.olirowan.com
+      insecure: true
+      dockerfile: Dockerfile
+      tags: ${DRONE_COMMIT_SHA:0:8}
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+
+  - name: minio-upload
+    image: alpine
+
+    commands:
+      - wget http://192.168.1.112:8000/mc
+      - chmod 755 ./mc
+      - ./mc alias set homelab-minio http://api-minio.home.olirowan.com $MINIO_CLIENT $MINIO_SECRET
+      - touch smart-irrigation.tgz && tar --exclude=smart-irrigation.tgz --exclude=.git --exclude=mc -czvf smart-irrigation.tgz .
+      - ./mc cp smart-irrigation.tgz homelab-minio/smart-irrigation-dev/
+
+    environment:
+      MINIO_CLIENT:
+        from_secret: minio_client
+      MINIO_SECRET:
+        from_secret: minio_secret
+
+  - name: update-container-tag-dev
+    image: alpine:3.8
+
+    environment:
+      DRONE_USER:
+        from_secret: drone_user
+      DRONE_PASS:
+        from_secret: drone_pass
+
+    commands:
+      - apk add --no-cache git curl bash openssh
+      - git config --global user.email "drone@home.olirowan.com"
+      - git config --global user.name "drone"
+
+      - mkdir -p /tmp/ && cd /tmp/
+      - git clone http://gitea.home.olirowan.com/olirowan/homelab-iac.git
+      - cd homelab-iac/
+      - sed -i 's/smart-irrigation:........$/smart-irrigation:${DRONE_COMMIT_SHA:0:8}/g' smart-irrigation/deployments/dev/smart-irrigation_deployment.yaml
+      - git add .
+      - git commit -m 'drone - updated container tag - ${DRONE_COMMIT_SHA:0:8}'
+      - git push http://$DRONE_USER:$DRONE_PASS@gitea.home.olirowan.com/olirowan/homelab-iac.git --all
+    when:
+      branch:
+      - develop
+
+
+  - name: update-container-tag-demo
+    image: alpine:3.8
+
+    environment:
+      DRONE_USER:
+        from_secret: drone_user
+      DRONE_PASS:
+        from_secret: drone_pass
+
+    commands:
+      - apk add --no-cache git curl bash openssh
+      - git config --global user.email "drone@home.olirowan.com"
+      - git config --global user.name "drone"
+
+      - mkdir -p /tmp/ && cd /tmp/
+      - git clone http://gitea.home.olirowan.com/olirowan/homelab-iac.git
+      - cd homelab-iac/
+      - sed -i 's/smart-irrigation:........$/smart-irrigation:${DRONE_COMMIT_SHA:0:8}/g' smart-irrigation/deployments/demo/smart-irrigation_deployment.yaml
+      - git add .
+      - git commit -m 'drone - updated container tag - ${DRONE_COMMIT_SHA:0:8}'
+      - git push http://$DRONE_USER:$DRONE_PASS@gitea.home.olirowan.com/olirowan/homelab-iac.git --all
+    when:
+      branch:
+      - master
