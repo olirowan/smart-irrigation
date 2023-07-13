@@ -31,23 +31,23 @@
                                     class="col-12 col-xl-12 text-xl-center mb-3 mb-xl-0 d-flex justify-content-xl-center">
                                     <div class="icon-shape d-flex icon-shape-white rounded">
                                         <span>
-                                            <i class="text-white {{ weather_icon }}"></i>
+                                            <i class="text-white {{ dashboard_data.weather_icon }}"></i>
                                         </span>
                                     </div>
                                 </div>
                                 <div class="col-12 col-xl-12 px-xl-0">
                                     <div class="d-none d-sm-block"></div>
-                                    <h1 class="mb-1 text-white">{{ weather.detailed_status|title }}</h1>
+                                    <h1 class="mb-1 text-white">{{ dashboard_data.weather_detail|title }}</h1>
                                     <li role="separator" class="dropdown-divider mb-4 border-gold"></li>
                                 </div>
 
                                 <div class="col-12 col-xl-12 px-xl-0">
                                     <h4 class="h6 text-white">
-                                        {{ current_date.strftime('%a %d %b, %H:%M') }}
+                                        {{ dashboard_data.current_date.strftime('%a %d %b, %H:%M') }}
                                     </h4>
                                     <h4 class="h6 mt-2 text-white">
                                         <span class="fas fa-globe-europe text-white"></span>
-                                        {{ current_user.city }}
+                                        {{ dashboard_data.city }}
                                     </h4>
                                 </div>
                                 <div class="d-flex justify-content-center ml-xl-3 pt-5 pb-2">
@@ -102,16 +102,16 @@
                                     </div>
 
                                     <div class="col-12 col-xl-12 px-xl-0">
-                                        {% if last_rain_date is string %}
+                                        {% if dashboard_data.last_rain_date is string %}
                                         <h4 class="h6 text-white">
-                                            {{ last_rain_date }}
+                                            {{ dashboard_data.last_rain_date }}
                                         </h4>
                                         {% else %}
                                         <h4 class="h6 text-white">
-                                            {{ moment(last_rain_date, local=true).fromNow() }}
+                                            {{ moment(dashboard_data.last_rain_date, local=true).fromNow() }}
                                         </h4>
                                         <h4 class="h6 text-white">
-                                            {{ last_rain_date.strftime('%a %d %b, %H:%M') }}
+                                            {{ dashboard_data.last_rain_date.strftime('%a %d %b, %H:%M') }}
                                         </h4>
                                         {% endif %}
                                     </div>
@@ -127,17 +127,17 @@
                                     </div>
 
                                     <div class="col-12 col-xl-12 px-xl-0">
-                                        {% if last_water_date is string %}
+                                        {% if dashboard_data.last_water_date is string %}
                                         <h4 class="h6 text-white">
-                                            {{ last_water_date }}
+                                            {{ dashboard_data.last_water_date }}
                                         </h4>
                                         {% else %}
                                         <h4 class="h6 text-white">
-                                            {{ moment(last_water_date, local=true).fromNow() }} (for {{
-                                            last_water_duration }}m)
+                                            {{ moment(dashboard_data.last_water_date, local=true).fromNow() }} (for {{
+                                                dashboard_data.last_water_duration }}m)
                                         </h4>
                                         <h4 class="h6 text-white">
-                                            {{ last_water_date.strftime('%a %d %b, %H:%M') }}
+                                            {{ dashboard_data.last_water_date.strftime('%a %d %b, %H:%M') }}
                                         </h4>
                                         {% endif %}
                                     </div>
@@ -153,16 +153,16 @@
                                     </div>
 
                                     <div class="col-12 col-xl-12 px-xl-0">
-                                        {% if next_rain_date is string %}
+                                        {% if dashboard_data.next_rain_date is string %}
                                         <h4 class="h6 text-white">
-                                            {{ next_rain_date }}
+                                            {{ dashboard_data.next_rain_date }}
                                         </h4>
                                         {% else %}
                                         <h4 class="h6 text-white">
-                                            {{ moment(next_rain_date, local=true).fromNow() }}
+                                            {{ moment(dashboard_data.next_rain_date, local=true).fromNow() }}
                                         </h4>
                                         <h4 class="h6 text-white">
-                                            {{ next_rain_date.strftime('%a %d %b, %H:%M') }}
+                                            {{ dashboard_data.next_rain_date.strftime('%a %d %b, %H:%M') }}
                                         </h4>
                                         {% endif %}
                                     </div>
@@ -178,16 +178,16 @@
                                     </div>
 
                                     <div class="col-12 col-xl-12 px-xl-0">
-                                        {% if next_water_date is string %}
+                                        {% if dashboard_data.next_water_date is string %}
                                         <h4 class="h6 text-white">
-                                            {{ next_water_date }}
+                                            {{ dashboard_data.next_water_date }}
                                         </h4>
                                         {% else %}
                                         <h4 class="h6 text-white">
-                                            {{ moment(next_water_date, local=true).fromNow() }}
+                                            {{ moment(dashboard_data.next_water_date, local=true).fromNow() }}
                                         </h4>
                                         <h4 class="h6 text-white">
-                                            {{ next_water_date.strftime('%a %d %b, %H:%M') }}
+                                            {{ dashboard_data.next_water_date.strftime('%a %d %b, %H:%M') }}
                                         </h4>
                                         {% endif %}
                                     </div>
@@ -200,12 +200,10 @@
 
             <script src="/static/assets/js/jquery.min.js"></script>
             <script src="/static/assets/js/progressbar.min.js"></script>
-            <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
             <script>
 
                 function emit_water_plants(water_duration) {
-
-                    console.log(water_duration);
 
                     namespace = '/water';
                     var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);

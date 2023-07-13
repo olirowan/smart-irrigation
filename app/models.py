@@ -1,7 +1,9 @@
 from time import time
 import jwt
 from flask_login import UserMixin
-from sqlalchemy import Binary, Column, Integer, String, DateTime
+from sqlalchemy import Column, ForeignKey
+from sqlalchemy.types import LargeBinary, Integer, String, DateTime
+from sqlalchemy.orm import relationship
 from app import app, db, login_manager
 from app.util import hash_pass
 
@@ -11,37 +13,31 @@ class User(db.Model, UserMixin):
     __tablename__ = "User"
 
     id = Column(Integer, primary_key=True)
+
     username = Column(String(32), unique=True)
     email = Column(String(128), unique=True)
-    password = Column(Binary)
+    password = Column(LargeBinary)
+
     first_name = Column(String(32))
     last_name = Column(String(32))
+
+    profileimage = Column(String(256), default="profile_template.png")
+
     city = Column(String(32))
     country = Column(String(32))
     timezone = Column(String(128))
-    latitude = Column(String(32))
-    longitude = Column(String(32))
-    owm_apikey = Column(String(128))
-    profileimage = Column(String(256), default="profile_template.png")
-    water_duration_minutes = Column(String(32), default="60")
-    schedule_watering = Column(String(32), default="eod")
-    skip_rained_today = Column(String(32), default="1")
-    skip_rained_yesterday = Column(String(32), default="1")
-    skip_watered_today = Column(String(32), default="1")
-    skip_watered_yesterday = Column(String(32), default="1")
-    watering_start_at = Column(String(32), default="1")
+
+    primary_profile_id = Column(Integer, ForeignKey("Settings.id"))
 
     def __init__(self, **kwargs):
+
         for property, value in kwargs.items():
-            # depending on whether value is an iterable or not, we must
-            # unpack it's value (when **kwargs is request.form, some values
-            # will be a 1-element list)
+
             if hasattr(value, "__iter__") and not isinstance(value, str):
-                # the ,= unpack of a singleton fails PEP8 (travis flake8 test)
                 value = value[0]
 
             if property == "password":
-                value = hash_pass(value)  # we need bytes here (not plain str)
+                value = hash_pass(value)
 
             setattr(self, property, value)
 
@@ -49,9 +45,11 @@ class User(db.Model, UserMixin):
         return str(self.username)
 
     def get_reset_password_token(self, expires_in=43200):
+
         return jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
-            app.config['SECRET_KEY'], algorithm='HS256')
+            app.config['SECRET_KEY'], algorithm='HS256'
+        )
 
     @staticmethod
     def verify_reset_password_token(token):
@@ -73,6 +71,41 @@ class User(db.Model, UserMixin):
 
     def set_password(self, password_value):
         self.password = hash_pass(password_value)
+
+
+class Settings(db.Model):
+
+    __tablename__ = "Settings"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(32))
+    description = Column(String(128))
+
+    is_primary = relationship("User")
+
+    watering_start_at = Column(String(32), default="14:00")
+    water_duration_minutes = Column(String(32), default="60")
+
+    latitude = Column(String(32))
+    longitude = Column(String(32))
+    owm_apikey = Column(String(128))
+
+    city = Column(String(32))
+    country = Column(String(32))
+    timezone = Column(String(128))
+
+    schedule_watering = Column(String(32), default="eod")
+
+    skip_rained_today = Column(String(32), default="1")
+    skip_rained_yesterday = Column(String(32), default="1")
+    skip_watered_today = Column(String(32), default="1")
+    skip_watered_yesterday = Column(String(32), default="1")
+
+    telegram_token = Column(String(128))
+    telegram_chat_id = Column(String(128))
+
+    def __repr__(self):
+        return str(self.name)
 
 
 class Watering(db.Model, UserMixin):

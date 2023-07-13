@@ -1,35 +1,7 @@
 import os
 import hashlib
 import binascii
-import urllib
-import requests
-from app import app, celery
-
-def telegram_notify(notification):
-
-    telegram_token = str(app.config["TELEGRAM_TOKEN"])
-    telegram_chat_id = str(app.config["TELEGRAM_CHAT_ID"])
-
-    # app.logger.info(telegram_token)
-    # app.logger.info(telegram_chat_id)
-
-    if telegram_token is not None and telegram_chat_id is not None:
-
-        app.logger.info("Posting message to telegram")
-
-        telegram_api_endpoint = 'https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s' % (
-            telegram_token,
-            telegram_chat_id,
-            urllib.parse.quote_plus(str(notification))
-        )
-
-        app.logger.info(telegram_api_endpoint)
-        response = requests.get(telegram_api_endpoint, timeout=10)
-        app.logger.info(response.text)
-    
-    else:
-
-        app.logger.info("Unable to post to telegram, no token present.")
+from app import celery
 
 
 def get_celery_worker_status():
@@ -49,6 +21,8 @@ def get_celery_worker_status():
         'active_tasks': active_tasks,
         'scheduled_tasks': scheduled_tasks
     }
+
+    print(result)
 
     return result
 
